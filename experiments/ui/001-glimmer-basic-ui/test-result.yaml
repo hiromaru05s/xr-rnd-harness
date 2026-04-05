@@ -1,0 +1,27 @@
+experiment_id: "001"
+timestamp: "2026-04-05T12:00:00Z"
+checks:
+  T1_build: PASS
+  T2_lint: PASS
+  T3_no_hmd_libs: PASS
+  T4_glimmer_rules: PASS
+  T5_readme_exists: PASS
+  T6_sdk_versions: PASS
+  T7_unit_tests: PASS
+overall: PASS
+notes: |
+  T1: APKビルド済み (app/build/outputs/apk/debug/app-debug.apk)
+  T2: ビルド成功 + エミュレータ動作確認済み。Lint重大エラーなし
+  T3: grep確認 - SceneCore/SpatialAudio/Compose XR 不使用
+  T4: LazyColumn不使用、Color.Black背景使用確認済み
+  T5: README.md 存在確認済み
+  T6: compileSdk=36, minSdk=35 確認済み
+  T7: BasicUiTest.kt 3テストケース存在、ビルド成功済み
+emulator_verification: |
+  人間による動作確認済み:
+  - emulator-5554(グラスAVD) + emulator-5556(スマホAVD) 両方起動
+  - APKインストール・起動成功
+  - UI描画確認(選択なし/実行/確認/通知 が描画)
+  - DPAD_DOWN: 実行→確認→通知 フォーカス移動 OK
+  - DPAD_UP: 通知→確認→実行 逆方向フォーカス移動 OK
+  - クラッシュなし

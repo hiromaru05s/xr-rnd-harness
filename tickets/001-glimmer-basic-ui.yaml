@@ -17,6 +17,6 @@ success_criteria:
   - "フォーカス移動がアウトラインベースで視認できる"
   - "黒背景上でテキスト・アイコンが明瞭に見える"
 estimated_complexity: "small"
-status: "queued"
+status: "passed"
 retry_count: 0
 verification_level: "emulator"

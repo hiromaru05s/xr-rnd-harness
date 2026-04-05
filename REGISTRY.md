@@ -14,13 +14,9 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 
 ## 完了済み機能
 
-（まだなし。実験がPASSするごとにOrchestratorが追記する）
-
-<!-- 記入例:
-### 001: Glimmer基本UIコンポーネント
-- **機能**: Button, Card, ListItem, VerticalList, TitleChipの基本描画とフォーカスナビ
-- **APIカバレッジ**: GlimmerTheme, Button, Card, ListItem, VerticalList, TitleChip, calculateContentColor
-- **パターン参照**: patterns/ui-patterns.md#基本コンポーネント配置
+### 001: Glimmer基本UIコンポーネント動作確認
+- **機能**: GlimmerThemeによる基本UIコンポーネント（Button, Card, ListItem, VerticalList, TitleChip）の描画とタッチパッドフォーカスナビゲーション
+- **APIカバレッジ**: GlimmerTheme, Button (Medium/Large), ButtonSize, Card, ListItem, VerticalList, items, TitleChip, Icon, Text, Color.Black背景
+- **パターン参照**: patterns/ui-patterns.md#glimmer基本コンポーネント配置
 - **PASS日**: 2026-04-05
-- **スコア**: 8/10
--->
+- **スコア**: 9/10

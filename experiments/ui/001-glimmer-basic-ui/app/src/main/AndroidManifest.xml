@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="Glimmer Basic UI"
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+
+        <!-- グラス用アクティビティ: xr_projected カテゴリで投影コンテキスト上に表示 -->
+        <activity
+            android:name=".GlassesMainActivity"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Glimmer Basic UI">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
