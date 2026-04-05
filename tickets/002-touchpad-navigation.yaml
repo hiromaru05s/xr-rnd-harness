@@ -1,0 +1,22 @@
+id: "002"
+title: "タッチパッドジェスチャーナビゲーション"
+category: "input"
+priority: "high"
+hypothesis: "onIndirectPointerGestureを使ったタッチパッドスワイプで、VerticalStackのカードフリップとVerticalListのスクロールを実装できる"
+scope:
+  - "3枚のカードを持つVerticalStackでスワイプ前方/後方によるページ送り"
+  - "VerticalListでのフォーカスベーススクロール"
+  - "タッチパッドクリックでカード内アクションを実行"
+  - "現在のカード位置をTitleChipで表示"
+skills_needed:
+  - "glimmer-api"
+  - "glasses-arch"
+success_criteria:
+  - "スワイプ前方でカードが次に進む"
+  - "スワイプ後方でカードが前に戻る"
+  - "クリックでカード内のボタンが反応する"
+  - "現在位置のインジケーターが正しく更新される"
+estimated_complexity: "small"
+status: "queued"
+retry_count: 0
+verification_level: "emulator"

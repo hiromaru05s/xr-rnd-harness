@@ -1,0 +1,24 @@
+id: "003"
+title: "Gemini Live音声会話ループ"
+category: "voice"
+priority: "high"
+hypothesis: "Firebase AI Logic経由のGemini Live APIで、グラスのマイクから音声入力→Geminiで処理→TTSで応答のリアルタイム会話ループが実現できる"
+scope:
+  - "Gemini Live セッションの初期化と接続管理"
+  - "グラスマイクからの音声ストリーム送信"
+  - "Geminiからの応答テキストをTTSで読み上げ"
+  - "会話状態をGlimmer UIで最小限表示（聞いてる/考え中/話してる）"
+  - "タッチパッド長押しで会話開始/終了"
+skills_needed:
+  - "glasses-hardware"
+  - "glimmer-api"
+  - "glasses-arch"
+success_criteria:
+  - "音声入力がGeminiに正常に送信される"
+  - "Geminiの応答がTTSで再生される"
+  - "会話状態がUIに反映される"
+  - "セッションの開始/終了が安定して動作する"
+estimated_complexity: "medium"
+status: "queued"
+retry_count: 0
+verification_level: "emulator"

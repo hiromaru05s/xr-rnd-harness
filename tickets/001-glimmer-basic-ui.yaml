@@ -1,0 +1,22 @@
+id: "001"
+title: "Glimmer基本UIコンポーネント動作確認"
+category: "ui"
+priority: "high"
+hypothesis: "GlimmerThemeの各基本コンポーネント（Button, Card, ListItem, VerticalList, TitleChip）が透過ディスプレイ前提の黒背景で正しく描画され、タッチパッドフォーカスナビゲーションが機能する"
+scope:
+  - "GlimmerThemeで全コンポーネントを包んだサンプル画面"
+  - "Button (Medium/Large, アイコン付き), Card, ListItem を各1つ以上配置"
+  - "VerticalListで3アイテム以下のリスト表示"
+  - "TitleChipでステータス表示"
+  - "タッチパッドによるフォーカス移動の確認"
+skills_needed:
+  - "glimmer-api"
+  - "glasses-arch"
+success_criteria:
+  - "全コンポーネントがGlimmerデフォルトテーマで正しく描画される"
+  - "フォーカス移動がアウトラインベースで視認できる"
+  - "黒背景上でテキスト・アイコンが明瞭に見える"
+estimated_complexity: "small"
+status: "queued"
+retry_count: 0
+verification_level: "emulator"

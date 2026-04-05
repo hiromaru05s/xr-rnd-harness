@@ -1,0 +1,20 @@
+id: "NNN"
+title: "実験タイトル"
+category: "ui | input | voice | camera | ar | architecture | integration"
+priority: "high | medium | low"
+hypothesis: "この実験で検証したい仮説を1-2文で"
+scope:
+  - "実装すべき具体的な機能1"
+  - "実装すべき具体的な機能2"
+skills_needed:
+  - "glimmer-api"
+success_criteria:
+  - "成功とみなす条件1"
+  - "成功とみなす条件2"
+verification_level: "static | emulator | device"
+  # static:    ビルド＋静的チェックのみ（ロジック、アーキテクチャ、データ処理系）
+  # emulator:  エミュレータでの動作確認が必要（UI、入力、音声系）
+  # device:    実機でしか確認できない（カメラ、Geospatial等）→ 実機入手まで保留可
+estimated_complexity: "small | medium | large"
+status: "queued"
+retry_count: 0

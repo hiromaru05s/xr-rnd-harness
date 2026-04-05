@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "android": {
+      "command": "cmd",
+      "args": ["/c", "npx", "scrcpy-mcp"]
+    }
+  }
+}
