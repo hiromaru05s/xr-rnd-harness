@@ -9,14 +9,20 @@ scope:
   - "VerticalListで3アイテム以下のリスト表示"
   - "TitleChipでステータス表示"
   - "タッチパッドによるフォーカス移動の確認"
+  - "スマホ側MainActivityからProjectedContext経由でGlassesMainActivity起動"
+  - "ProjectedDisplayController/ProjectedDeviceControllerの統合"
 skills_needed:
   - "glimmer-api"
   - "glasses-arch"
+  - "projected-api"
 success_criteria:
   - "全コンポーネントがGlimmerデフォルトテーマで正しく描画される"
   - "フォーカス移動がアウトラインベースで視認できる"
   - "黒背景上でテキスト・アイコンが明瞭に見える"
+  - "スマホ側MainActivityからProjectedContext経由でGlassesMainActivity起動"
+  - "ProjectedDisplayController/ProjectedDeviceControllerが正しく統合されている"
 estimated_complexity: "small"
 status: "passed"
-retry_count: 0
+retry_count: 1
 verification_level: "emulator"
+human_feedback: true

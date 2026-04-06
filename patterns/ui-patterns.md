@@ -143,18 +143,27 @@ fun MyScreen(modifier: Modifier = Modifier) {
 ```
 
 ```xml
-<!-- === AndroidManifest.xml: グラス投影必須設定 === -->
-<activity
-    android:name=".GlassesMainActivity"
-    android:exported="true"
-    android:requiredDisplayCategory="xr_projected"
-    android:label="My Glass App">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
-</activity>
-```
+<!-- === AndroidManifest.xml: 2アクティビティ構成（公式推奨） === -->
+<!-- 注意: GlassesMainActivityにLAUNCHERカテゴリを付けるのはNG -->
+<application>
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+    <activity
+        android:name=".GlassesMainActivity"
+        android:exported="true"
+        android:requiredDisplayCategory="xr_projected"
+        android:label="My Glass App">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+        </intent-filter>
+    </activity>
+</application>
 
 **ハマりポイント**:
 - `LazyColumn` は使わない。必ず `VerticalList` + `items()` を使う

@@ -5,15 +5,24 @@
         android:label="Glimmer Basic UI"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
 
-        <!-- グラス用アクティビティ: xr_projected カテゴリで投影コンテキスト上に表示 -->
+        <!-- スマートフォン側ランチャー: LAUNCHER カテゴリで起動ポイント -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- グラス用アクティビティ: ProjectedContext経由で起動、LAUNCHERカテゴリなし -->
         <activity
             android:name=".GlassesMainActivity"
             android:exported="true"
             android:requiredDisplayCategory="xr_projected"
-            android:label="Glimmer Basic UI">
+            android:label="Glimmer Basic UI - Glasses">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
