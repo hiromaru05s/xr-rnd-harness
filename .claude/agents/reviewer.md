@@ -117,8 +117,42 @@ extractable_patterns:  # PASS時のみ
   - "パターンとして抽出可能な要素の説明"
 ```
 
+## フィードバック付き実験のレビュー（human-feedback.yaml がある場合）
+
+人間（Hiromaru）が差し戻した実験の再レビュー。**通常のレビュー基準に加えて、以下を必ず確認する。**
+
+### 必須確認手順
+
+1. **`human-feedback.yaml` を読む**（実験フォルダ内）
+2. `specific_issues` の各項目について、改修が行われたか1つずつ確認
+3. `improvement_direction` の指示に沿った対応がされているか確認
+4. `history` がある場合、過去に指摘された問題が再発していないか確認
+5. README.mdに「前回の差し戻し理由」と「今回の変更内容」が記載されているか確認
+
+### フィードバック解消の判定
+
+| 状態 | 判定 |
+|------|------|
+| 全 `specific_issues` が解消 + `improvement_direction` に沿った対応 | 通常通りスコア採点 |
+| 一部未解消だが改善はある | スコアから **-1点** 減点。`improvement_items` に未解消項目を明記 |
+| ほぼ未対応 or 同じ問題が残存 | **FAIL**（スコアに関わらず）。人間に同じ問題で再度差し戻されるのを防ぐ |
+
+### review-result.yaml への追記（フィードバック付きの場合）
+
+通常の出力に加えて以下を含める:
+
+```yaml
+human_feedback_resolution:
+  original_issues:
+    - "issue 1: RESOLVED / PARTIAL / UNRESOLVED"
+    - "issue 2: RESOLVED / PARTIAL / UNRESOLVED"
+  improvement_direction_followed: true/false
+  reviewer_note: "フィードバック対応についてのコメント"
+```
+
 ## レビュー時の心構え
 - 「動く」は前提。その上での品質を見る
 - Glimmer APIの使い方が正しいかはスキルを参照して確認
 - AIグラスの物理的制約（透過ディスプレイ、狭FOV、タッチパッド入力）を常に意識
 - 厳しすぎず甘すぎず。7/10が「十分に良い実装」のライン
+- **フィードバック付き実験は特に厳しく見る。人間が一度NGを出した以上、同じ問題の再発は許容しない**

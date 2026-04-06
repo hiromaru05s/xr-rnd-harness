@@ -142,9 +142,10 @@ Testerがエミュレータテストフェーズに入る前に、エミュレ�
 ### Step 4: 結果確認
 
 ダッシュボード（http://localhost:5000）で確認:
-- **Dashboard**: 全体のステータスサマリ
-- **Tickets**: 全チケット一覧、ステータス変更も可能
-- **Experiments**: カテゴリ別にREADME、テスト結果、レビュースコア
+- **Dashboard**: 全体のステータスサマリ + フィードバック統計
+- **Tickets**: 全チケット一覧、ステータス変更も可能（FBフラグ表示あり）
+- **Experiments**: カテゴリ別にREADME、テスト結果、レビュースコア、差し戻しボタン
+- **Feedback**: フィードバック履歴一覧 + 深刻度別統計 + アーカイブ
 - **Patterns**: 蓄積された実装パターン集
 - **Registry**: 完了済み機能一覧 + 失敗分析
 
@@ -152,7 +153,27 @@ Testerがエミュレータテストフェーズに入る前に、エミュレ�
 
 PASS済みの実験を実際にエミュレータや実機で確認して、微妙だったら差し戻す。
 
-**差し戻し方法**（Claude Codeで一言）:
+**方法A: WebUI（推奨）**
+
+1. http://localhost:5000/experiments を開く
+2. 対象の実験カードの「差し戻し」ボタンをクリック
+3. フォームに以下を入力:
+   - 理由（概要）
+   - 深刻度（low / medium / high / critical）
+   - 具体的な問題点（1行ずつ）
+   - 改善方向（Builderへの指示）
+4. 「差し戻し送信」をクリック
+
+送信すると自動で以下が実行される:
+1. `human-feedback.yaml` が生成される
+2. REGISTRY.mdとpatterns/から該当エントリが削除される
+3. `archive/human-rejections.md` に教訓が記録される
+4. チケットが `queued` に戻り `human_feedback: true` フラグが立つ
+5. 次にOrchestratorが処理するとき、**フィードバック付きチケットが最優先でピックされ**、Builderがフィードバックを読んで改修
+
+フィードバック履歴は http://localhost:5000/feedback で確認できる。
+
+**方法B: Claude Codeで一言**
 ```
 実験001を差し戻し。理由: フォーカスのアウトラインが見えない
 ```
@@ -161,24 +182,21 @@ PASS済みの実験を実際にエミュレータや実機で確認して、微�
 experiments/ui/002をreject。スワイプの反応が悪い
 ```
 
-これだけで:
-1. `human-feedback.yaml` が生成される
-2. REGISTRY.mdとpatterns/から該当エントリが削除される
-3. `archive/human-rejections.md` に教訓が記録される
-4. チケットが `queued` に戻る
-5. 次にOrchestratorが処理するとき、Builderがフィードバックを読んで改修
+WebUIと同じ処理が実行される。どちらの方法でも結果は同じ。
 
 **PDCAのサイクル**:
 ```
 Plan:  チケット起票（WebUI or Planner）
 Do:    Builder実装 → Tester → Reviewer → PASS
 Check: あなたが実際に動かして確認
-Act:   微妙なら差し戻し → Builderが改修 → 再テスト → 再レビュー
+Act:   微妙なら差し戻し（WebUI or CLI）→ Builderが改修 → 再テスト → 再レビュー
 ```
 
 **差し戻しのコツ**:
 - 理由は具体的に書く。「微妙」だけだとBuilderが何を直すかわからない
 - 「フォーカスが見えない」「スワイプが3回に1回しか反応しない」「文字が小さすぎる」など
+- 深刻度を正しく設定する。critical/highは根本作り直し、lowはピンポイント修正になる
+- 「改善方向」は具体的に。「もっと明るく」より「#FFFFFFの2pxボーダー」の方がBuilderに伝わる
 - 同じ理由で2回差し戻すと、Builderはその問題パターンを学習して次回から注意する
 
 ---
