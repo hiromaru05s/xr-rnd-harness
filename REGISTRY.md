@@ -101,3 +101,18 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/ar-patterns.md: XR Session初期化パターン, ArDeviceポーズ収集パターン
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 007: Glimmer DepthEffect/Surface高度活用
+- **PASS Date**: 2026-04-06 (9/10)
+- **Feature**: Glimmer Surface/SurfaceDefaults/Cardのカスタマイズパターン。カスタムボーダー、カスタムカラー、Modifier.surface()、Card全スロット活用。
+- **API Coverage**:
+  - `Modifier.surface(focusable, shape, color, border)`
+  - `SurfaceDefaults.border(width, color)`
+  - `BorderStroke` (Compose Foundation)
+  - `GlimmerTheme.shapes.small` / `.medium` / `.large`
+  - `GlimmerTheme.colors.surface` / `.primary` / `.positive`
+  - `Card(title, subtitle, leadingIcon, color, border)` - 全スロット活用
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/ui-patterns.md: Surface/SurfaceDefaultsカスタマイズ, Card全スロット活用
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)

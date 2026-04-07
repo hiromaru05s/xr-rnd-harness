@@ -281,3 +281,49 @@ VerticalList(
 **出典**: experiments/ui/001-glimmer-basic-ui (人間フィードバック対応で発見)
 
 ---
+
+## Surface/SurfaceDefaultsカスタマイズ
+
+**いつ使う**: Card/ListItem/BoxのボーダーやSurface設定をカスタマイズしたいとき
+**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+
+```kotlin
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.unit.dp
+import androidx.xr.glimmer.Card
+import androidx.xr.glimmer.GlimmerTheme
+import androidx.xr.glimmer.SurfaceDefaults
+import androidx.xr.glimmer.surface
+
+// 1. Cardにカスタムボーダーとカラー
+Card(
+    title = { Text("Custom Card") },
+    color = GlimmerTheme.colors.surface,
+    border = SurfaceDefaults.border(
+        width = 3.dp,
+        color = GlimmerTheme.colors.primary,
+    ),
+) { /* content */ }
+
+// 2. Modifier.surface()でフォーカス対応Boxを作成
+Box(
+    modifier = Modifier
+        .surface(
+            focusable = true,
+            shape = GlimmerTheme.shapes.small, // RoundedCornerShape(24.dp)
+            color = GlimmerTheme.colors.surface,
+            border = BorderStroke(2.dp, GlimmerTheme.colors.positive),
+        )
+        .padding(16.dp), // .surface()の後に.padding()
+) { /* content */ }
+```
+
+**ハマりポイント**:
+- `.surface().padding()`の順序が重要。逆にするとボーダーがpaddingの内側に描画される
+- SurfaceDefaults.border()はデフォルト2dp、フォーカス時5dpに拡大アニメーション
+- shapes.small=24dp角丸、shapes.medium=36dp角丸、shapes.large=CircleShape
+- focusable=trueでフォーカスアウトラインが有効化される
+
+**出典**: experiments/ui/007-glimmer-depth-effects
+
+---

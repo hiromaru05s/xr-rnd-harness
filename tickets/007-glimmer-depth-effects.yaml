@@ -1,0 +1,22 @@
+id: "007"
+title: "Glimmer DepthEffect・Surface高度活用"
+category: "ui"
+priority: "medium"
+hypothesis: "GlimmerのDepthEffectレベル(1-5)とSurface Modifier、カスタムカラー/ボーダーを組み合わせることで、透過ディスプレイ上で奥行き感のあるUI階層を表現できる"
+scope:
+  - "DepthEffectLevels (level1-level5) の視覚差確認"
+  - "SurfaceDepthEffect(depthEffect, focusedDepthEffect)のフォーカス連動"
+  - "Modifier.surface()のカスタムshape/color/border設定"
+  - "SurfaceDefaults.border()のカスタマイズ"
+  - "Cardの各スロット(header, leadingIcon, subtitle)の活用"
+skills_needed:
+  - "glimmer-api"
+success_criteria:
+  - "5段階のDepthEffectが視覚的に区別できる"
+  - "フォーカス時とアンフォーカス時でDepthEffectが切り替わる"
+  - "カスタムSurface設定が正しく描画される"
+  - "Cardの全スロットが正しく配置される"
+estimated_complexity: "small"
+status: "passed"
+retry_count: 0
+verification_level: "static"
