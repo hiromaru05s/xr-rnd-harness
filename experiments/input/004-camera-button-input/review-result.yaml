@@ -1,0 +1,19 @@
+experiment_id: "004"
+timestamp: "2026-04-06T22:05:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
+verdict: "PASS"
+feedback: |
+  UX: 黒背景・TitleChip+Card構成でAIグラスに最適な最小限UI。
+  フォーカス対応のリセットボタンもFOV制約内で適切に配置。
+  コード: ProjectedActivityCompatのライフサイクル管理が堅牢。
+  close()をonDestroy時に確実に呼び出す設計。coroutinesのスコープ管理も適切。
+  再利用性: ProjectedInputEventsの受信パターンは他の入力系実験で即再利用可能。
+  ドキュメント: README.mdが仮説・実装・実行手順を明確に記述。
+extractable_patterns:
+  - "ProjectedActivityCompat入力イベント受信パターン"
+  - "入力イベントカウンター+リアルタイムUI更新パターン"

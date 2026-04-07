@@ -59,3 +59,17 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/voice-patterns.md: Gemini Live initialization, ConversationState, Voice-first UI
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 004: カメラボタン入力イベント処理
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: ProjectedActivityCompatのprojectedInputEventsフローでカメラボタン等の入力イベントを受信・カウント・UI表示。AutoCloseableなリソース管理パターン確立。
+- **API Coverage**:
+  - `ProjectedActivityCompat.create()`, `ProjectedActivityCompat.projectedInputEvents` (Flow)
+  - `ProjectedActivityCompat.close()` (AutoCloseable)
+  - `ProjectedInputEvent.inputAction`
+  - Robust lifecycle pattern (from 001): singleTop + onNewIntent + onResume
+  - `GlimmerTheme.colors.positive` / `GlimmerTheme.colors.primary` for dynamic color
+  - `GlimmerTheme.typography.titleMedium` for emphasis
+- **Pattern References**:
+  - patterns/input-patterns.md: ProjectedActivityCompat入力イベント受信パターン
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)

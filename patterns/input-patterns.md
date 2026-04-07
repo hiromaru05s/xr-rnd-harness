@@ -109,3 +109,57 @@ fun CardNavigationExample() {
 **Source**: experiments/input/002-touchpad-navigation
 
 ---
+
+## ProjectedActivityCompat Input Event Listening
+
+**When to use**: Receiving hardware input events (camera button, etc.) from AI glasses
+**Prerequisites**: `implementation("androidx.xr.projected:projected:1.0.0-alpha05")`
+
+```kotlin
+import androidx.lifecycle.lifecycleScope
+import androidx.xr.projected.ProjectedActivityCompat
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalProjectedApi::class)
+class GlassesMainActivity : ComponentActivity() {
+
+    private var projectedActivityCompat: ProjectedActivityCompat? = null
+
+    private fun startListeningForInputEvents() {
+        lifecycleScope.launch {
+            try {
+                val compat = ProjectedActivityCompat.create(this@GlassesMainActivity)
+                projectedActivityCompat = compat
+
+                // projectedInputEvents is a Flow<ProjectedInputEvent>
+                compat.projectedInputEvents.collect { event ->
+                    val actionName = event.inputAction.toString()
+                    // Handle the event (e.g., TOGGLE_APP_CAMERA)
+                }
+            } catch (e: Exception) {
+                // Handle connection failure
+            }
+        }
+    }
+
+    // IMPORTANT: Clean up in onDestroy
+    private fun releaseResources() {
+        projectedActivityCompat?.let { compat ->
+            try { compat.close() } catch (e: Exception) { /* log */ }
+        }
+        projectedActivityCompat = null
+    }
+}
+```
+
+**Gotchas**:
+- `ProjectedActivityCompat` implements `AutoCloseable` - always call `close()` in onDestroy
+- `create()` is a suspend function that connects to the projection service
+- `projectedInputEvents` is a cold Flow - collection starts listening
+- Currently defined action: `TOGGLE_APP_CAMERA` (camera button press)
+- If the glasses disconnect, the Flow will complete or throw
+
+**Source**: experiments/input/004-camera-button-input
+
+---

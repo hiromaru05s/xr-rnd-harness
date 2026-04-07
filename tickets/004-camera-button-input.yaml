@@ -1,0 +1,23 @@
+id: "004"
+title: "カメラボタン入力イベント処理"
+category: "input"
+priority: "high"
+hypothesis: "ProjectedActivityCompatのprojectedInputEventsフローでカメラボタン(TOGGLE_APP_CAMERA)の押下を検出し、UIに反映できる"
+scope:
+  - "ProjectedActivityCompat.create()でサービス接続"
+  - "projectedInputEvents Flowでカメラボタンイベントを受信"
+  - "ProjectedInputAction.TOGGLE_APP_CAMERA判定"
+  - "ボタン押下回数のカウントとGlimmer UIへの反映"
+  - "イベント受信状態をTitleChipで表示"
+skills_needed:
+  - "projected-api"
+  - "glimmer-api"
+success_criteria:
+  - "ProjectedActivityCompatが正常に初期化される"
+  - "カメラボタン押下イベントがFlowで受信される"
+  - "押下回数がUI上でリアルタイムに更新される"
+  - "イベント受信状態がTitleChipに正しく表示される"
+estimated_complexity: "small"
+status: "passed"
+retry_count: 0
+verification_level: "static"
