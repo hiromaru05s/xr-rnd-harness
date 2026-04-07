@@ -423,3 +423,48 @@ class GlassesMainActivity : ComponentActivity() {
 **Source**: experiments/architecture/012-permissions-handling
 
 ---
+
+## HostDeviceContext Cross-Device Access Pattern
+
+**When to use**: When accessing phone hardware (vibrator, sensors) from glasses Activity
+**Prerequisites**: `implementation("androidx.xr.projected:projected:1.0.0-alpha05")`
+
+```kotlin
+import android.content.Context
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.xr.projected.ProjectedContext
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+
+@OptIn(ExperimentalProjectedApi::class)
+fun exploreContexts(activity: ComponentActivity) {
+    // Check if current context is glasses context
+    val isGlasses = ProjectedContext.isProjectedDeviceContext(activity)  // true in GlassesMainActivity
+
+    // Get projected device name
+    val name = ProjectedContext.getProjectedDeviceName(activity)  // "ProjectionDevice" or null
+
+    // Get phone context from glasses
+    try {
+        val phoneContext = ProjectedContext.createHostDeviceContext(activity)
+        val isPhone = ProjectedContext.isProjectedDeviceContext(phoneContext)  // false
+
+        // Access phone hardware
+        val vibrator = phoneContext.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        vibrator?.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+    } catch (e: IllegalStateException) {
+        // No projected device connected
+    }
+}
+```
+
+**Gotchas**:
+- createHostDeviceContext() throws IllegalStateException if no device connected
+- Do NOT use getApplicationContext() - may return wrong context type
+- isProjectedDeviceContext() returns true for glasses, false for phone
+- Host context is valid only while isProjectedDeviceConnected is true
+- VIBRATE permission needed in AndroidManifest.xml
+
+**Source**: experiments/architecture/015-host-device-context
+
+---

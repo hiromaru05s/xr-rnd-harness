@@ -1,0 +1,23 @@
+id: "015"
+title: "HostDeviceContextによるスマホハードウェアアクセス"
+category: "architecture"
+priority: "medium"
+hypothesis: "ProjectedContext.createHostDeviceContext()を使って、グラスアクティビティからスマートフォンのハードウェア（バイブレーション等）にアクセスし、クロスデバイス連携UIが作れる"
+scope:
+  - "ProjectedContext.createHostDeviceContext(activity)でスマホコンテキスト取得"
+  - "ホストコンテキスト経由でVibrator取得・振動実行"
+  - "isProjectedDeviceContext()でコンテキスト種別判定"
+  - "getProjectedDeviceName()でデバイス名取得"
+  - "グラスUI上でスマホハードウェア状態表示"
+skills_needed:
+  - "projected-api"
+  - "glimmer-api"
+success_criteria:
+  - "createHostDeviceContext()がスマホコンテキストを返す"
+  - "isProjectedDeviceContext()が正しくtrue/false判定する"
+  - "getProjectedDeviceName()がデバイス名を返す"
+  - "ホストコンテキスト経由のハードウェアアクセスが機能する"
+estimated_complexity: "small"
+status: "passed"
+retry_count: 0
+verification_level: "static"
