@@ -204,3 +204,32 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/ui-patterns.md: Typography scale, Colors.copy() custom theme, Nested GlimmerTheme
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 014: Gemini Live Function Calling統合
+- **PASS Date**: 2026-04-07 (10/10)
+- **Feature**: Gemini Live Function Calling for voice-controlled shopping list management. FunctionDeclaration/Tool/FunctionCallPart/FunctionResponsePart integration. Agent-style UI with mutableStateListOf.
+- **API Coverage**:
+  - `FunctionDeclaration(name, description, parameters)` with `Schema.string()`
+  - `Tool.functionDeclarations(listOf(...))` for tool registration
+  - `LiveSession.startAudioConversation(functionCallHandler)` with handler
+  - `FunctionCallPart.name`, `FunctionCallPart.args` (Map<String, JsonElement>?)
+  - `FunctionResponsePart(name, JsonObject)` for response
+  - `JsonObject`, `JsonPrimitive` (kotlinx.serialization.json)
+  - Firebase AI PublicPreviewAPI opt-in
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/voice-patterns.md: Gemini Function Calling handler pattern
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 015: HostDeviceContextによるスマホハードウェアアクセス
+- **PASS Date**: 2026-04-07 (10/10)
+- **Feature**: ProjectedContext.createHostDeviceContext() for cross-device phone hardware access from glasses. Context type detection and device identification.
+- **API Coverage**:
+  - `ProjectedContext.createHostDeviceContext(activity)` for phone context
+  - `ProjectedContext.isProjectedDeviceContext(context)` for type detection
+  - `ProjectedContext.getProjectedDeviceName(context)` for device name
+  - `Vibrator` via host context for phone vibration
+  - `ContextInfo` data class for state management
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/architecture-patterns.md: HostDeviceContext cross-device pattern, Robust lifecycle (reused)

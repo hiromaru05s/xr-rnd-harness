@@ -1,0 +1,23 @@
+id: "014"
+title: "Gemini Live Function Calling統合"
+category: "voice"
+priority: "high"
+hypothesis: "Gemini LiveのFunction Calling機能を使って、音声コマンドでアプリ状態を操作（リスト追加・削除）できるエージェントUIが作れる"
+scope:
+  - "FunctionDeclaration定義（addItem, removeItem, listItems）"
+  - "Tool.functionDeclarations()でツールリスト構築"
+  - "functionCallHandler実装（FunctionCallPart→FunctionResponsePart）"
+  - "LiveSession.startAudioConversation(functionCallHandler)で関数呼び出し対応会話"
+  - "関数実行結果のGlimmer UI反映（リスト表示更新）"
+skills_needed:
+  - "glasses-hardware"
+  - "glimmer-api"
+success_criteria:
+  - "FunctionDeclarationが正しく定義される"
+  - "functionCallHandlerが関数名でディスパッチする"
+  - "FunctionResponsePartが正しい形式で返される"
+  - "関数実行結果がUIに反映される"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"

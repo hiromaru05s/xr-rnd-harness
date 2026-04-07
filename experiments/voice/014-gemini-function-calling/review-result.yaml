@@ -1,0 +1,14 @@
+experiment_id: "014"
+timestamp: "2026-04-07T01:35:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
+verdict: "PASS"
+feedback: |
+  Complete Function Calling implementation with 3 function declarations (addItem, removeItem, listItems).
+  Clean functionCallHandler dispatch with proper FunctionResponsePart construction.
+  Shopping list state management with mutableStateListOf. Firebase AI experimental opt-in handled.
+  kotlinx-serialization-json dependency properly added. All success criteria met.

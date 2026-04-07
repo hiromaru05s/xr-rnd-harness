@@ -194,3 +194,60 @@ class TtsManager(
 **出典**: experiments/voice/008-tts-audio-feedback
 
 ---
+
+## Gemini Function Calling Handler Pattern
+
+**When to use**: When implementing voice-driven app actions via Gemini Live Function Calling
+**Prerequisites**: `implementation(platform("com.google.firebase:firebase-bom:34.11.0"))`, `implementation("com.google.firebase:firebase-ai")`, `implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")`
+
+```kotlin
+import com.google.firebase.ai.type.FunctionCallPart
+import com.google.firebase.ai.type.FunctionDeclaration
+import com.google.firebase.ai.type.FunctionResponsePart
+import com.google.firebase.ai.type.Schema
+import com.google.firebase.ai.type.Tool
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+
+// 1. Declare functions
+val addItemDecl = FunctionDeclaration(
+    name = "addItem",
+    description = "Add an item to the list",
+    parameters = mapOf("item" to Schema.string("The item name"))
+)
+
+// 2. Create tool
+val tools = listOf(Tool.functionDeclarations(listOf(addItemDecl)))
+
+// 3. Handler function
+fun handleFunctionCall(call: FunctionCallPart): FunctionResponsePart {
+    return when (call.name) {
+        "addItem" -> {
+            val name = call.args?.get("item")?.toString()?.trim('"') ?: "unknown"
+            // Do the action...
+            FunctionResponsePart(call.name, JsonObject(mapOf(
+                "success" to JsonPrimitive(true),
+                "message" to JsonPrimitive("Added " + name)
+            )))
+        }
+        else -> FunctionResponsePart(call.name, JsonObject(mapOf(
+            "error" to JsonPrimitive("Unknown function")
+        )))
+    }
+}
+
+// 4. Start conversation with handler
+session.startAudioConversation(functionCallHandler = ::handleFunctionCall)
+```
+
+**Gotchas**:
+- kotlinx-serialization-json dependency required (not included in Firebase BOM)
+- kotlin.plugin.serialization plugin required in build.gradle.kts
+- FunctionCallPart.args is nullable Map<String, JsonElement>?
+- FunctionResponsePart name MUST match the FunctionCallPart.name
+- Firebase AI preview APIs require compiler opt-in: `-opt-in=com.google.firebase.ai.type.PublicPreviewAPI`
+- String values in args include quotes - use `.trim('"')` to clean
+
+**Source**: experiments/voice/014-gemini-function-calling
+
+---
