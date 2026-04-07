@@ -73,3 +73,17 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/input-patterns.md: ProjectedActivityCompat入力イベント受信パターン
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 005: 通知ブリッジングとProjectedExtender
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: NotificationCompat + IMPORTANCE_HIGHチャンネルによるグラスへの通知ブリッジング。標準通知とMessagingStyle会話通知の両方をサポート。sealed class Result型パターン確立。
+- **API Coverage**:
+  - `NotificationChannel` (IMPORTANCE_HIGH)
+  - `NotificationCompat.Builder`, `NotificationManagerCompat`
+  - `NotificationCompat.MessagingStyle`, `Person.Builder`
+  - `PendingIntent` (FLAG_IMMUTABLE + FLAG_UPDATE_CURRENT)
+  - sealed class `NotificationResult` (Success/Error)
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/architecture-patterns.md: 通知ブリッジングパターン, sealed class Result型
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)

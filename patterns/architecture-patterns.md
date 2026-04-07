@@ -320,3 +320,60 @@ private fun launchGlassesActivity() {
 **出典**: experiments/ui/001-glimmer-basic-ui (人間フィードバック対応で確立)
 
 ---
+
+## 通知ブリッジングパターン（スマホ→グラス）
+
+**いつ使う**: AIグラスに通知をブリッジしたいとき
+**前提**: `implementation("androidx.core:core-ktx:1.13.0")`
+
+```kotlin
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.Person
+
+// 1. IMPORTANCE_HIGHチャンネルを作成（ブリッジング条件）
+val channel = NotificationChannel(
+    "glasses_channel",
+    "Glasses Notifications",
+    NotificationManager.IMPORTANCE_HIGH, // IMPORTANCE_HIGH以上必須
+)
+context.getSystemService(NotificationManager::class.java)
+    .createNotificationChannel(channel)
+
+// 2. 標準通知（ブリッジング条件を全て満たす）
+val notification = NotificationCompat.Builder(context, "glasses_channel").apply {
+    setSmallIcon(android.R.drawable.ic_dialog_info)
+    setContentTitle("タイトル必須") // null・空だとブリッジされない
+    setContentText("通知本文")
+    setAutoCancel(true)
+    setOngoing(false) // 継続的通知はブリッジされない
+    // FLAG_LOCAL_ONLYは付けない（デフォルト: ブリッジ可能）
+    priority = NotificationCompat.PRIORITY_HIGH
+}.build()
+NotificationManagerCompat.from(context).notify(1, notification)
+
+// 3. MessagingStyle通知（会話形式、グラスで特に見やすい）
+val person = Person.Builder().setName("Sender").build()
+val style = NotificationCompat.MessagingStyle(person)
+    .setConversationTitle("会話タイトル")
+    .addMessage("メッセージ本文", System.currentTimeMillis(), person)
+val msgNotification = NotificationCompat.Builder(context, "glasses_channel").apply {
+    setSmallIcon(android.R.drawable.ic_dialog_email)
+    setStyle(style)
+    setAutoCancel(true)
+}.build()
+NotificationManagerCompat.from(context).notify(2, msgNotification)
+```
+
+**ハマりポイント**:
+- ブリッジング条件: IMPORTANCE_HIGH + タイトル非空 + FLAG_LOCAL_ONLYなし + 非ongoing
+- POST_NOTIFICATIONS権限がAPI 33+で必要
+- RemoteViewsカスタム通知はブリッジされない
+- MessagingStyleはダイレクト返信対応で音声返信/スマートリプライが使える
+
+**出典**: experiments/architecture/005-notification-bridge
+
+---

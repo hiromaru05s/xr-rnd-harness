@@ -1,0 +1,24 @@
+id: "005"
+title: "通知ブリッジングとProjectedExtender"
+category: "architecture"
+priority: "high"
+hypothesis: "NotificationCompatとProjectedExtenderを使って、スマホからグラスへの通知ブリッジングが実装でき、グラス固有のインテントを設定できる"
+scope:
+  - "NotificationChannel(IMPORTANCE_HIGH)の作成"
+  - "NotificationCompat.Builderで通知構築"
+  - "ProjectedExtenderでグラス固有のcontentIntent設定"
+  - "MessagingStyleでの会話通知表示"
+  - "通知発行/キャンセルのライフサイクル管理"
+skills_needed:
+  - "projected-api"
+  - "glasses-hardware"
+  - "glimmer-api"
+success_criteria:
+  - "NotificationChannelがIMPORTANCE_HIGHで作成される"
+  - "ProjectedExtenderが正しく統合される"
+  - "MessagingStyleの通知が構築できる"
+  - "通知発行とキャンセルが正しく動作する"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"

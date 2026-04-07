@@ -1,0 +1,20 @@
+experiment_id: "005"
+timestamp: "2026-04-06T22:25:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
+verdict: "PASS"
+feedback: |
+  UX: 最小限のUI構成。TitleChip+Card+VerticalList(2アイテム)でFOV制約内。
+  コード: NotificationHelperのsealed class ResultパターンはKotlin慣用句として模範的。
+  ブリッジング条件(IMPORTANCE_HIGH, タイトル必須, 非LOCAL_ONLY, 非ongoing)の
+  コメントによる明示も再利用性が高い。
+  再利用性: NotificationHelperクラスはそのまま他の実験で再利用可能。
+  ドキュメント: ブリッジング条件の詳細がコードコメントとREADMEに明記。
+extractable_patterns:
+  - "通知ブリッジングチャンネル作成パターン"
+  - "MessagingStyle会話通知パターン"
+  - "sealed class Result型パターン"
