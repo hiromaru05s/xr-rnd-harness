@@ -1,0 +1,23 @@
+id: "010"
+title: "Geospatial位置情報取得"
+category: "ar"
+priority: "high"
+hypothesis: "ARCore Geospatial APIでVPS+GPSベースの位置情報（緯度・経度・高度）を取得し、グラスUIに表示できる"
+scope:
+  - "Config(geospatial=GeospatialMode.VPS_AND_GPS)でGeospatial有効化"
+  - "Geospatial.getInstance()でGeospatialインスタンス取得"
+  - "VPS可用性チェック(queryVpsAvailability)"
+  - "デバイスポーズ→地理空間ポーズ変換(createGeospatialPoseFromPose)"
+  - "緯度・経度・高度のGlimmer UI表示"
+skills_needed:
+  - "xr-runtime"
+  - "glimmer-api"
+success_criteria:
+  - "GeospatialMode.VPS_AND_GPSでセッション設定できる"
+  - "Geospatialインスタンスが取得できる"
+  - "VPS可用性チェックのresultハンドリングが実装される"
+  - "GeospatialPoseの各フィールドがUIに表示される"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"

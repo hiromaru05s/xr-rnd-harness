@@ -78,3 +78,64 @@ arDevice.state.collect { state ->
 **出典**: experiments/ar/006-device-pose-tracking
 
 ---
+
+## Geospatial Session Initialization + Pose Tracking
+
+**When to use**: When obtaining geographic coordinates (lat/lng/alt) via ARCore Geospatial API
+**Prerequisites**: `implementation("androidx.xr.arcore:arcore:1.0.0-alpha11")`, `implementation("androidx.xr.runtime:runtime:1.0.0-alpha12")`, `implementation("com.google.android.gms:play-services-location:21.3.0")`
+
+```kotlin
+import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
+import androidx.xr.arcore.Geospatial
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.Pose
+
+// 1. Create session and configure
+when (val result = Session.create(activity)) {
+    is SessionCreateSuccess -> {
+        val session = result.session
+        val config = Config(
+            geospatial = GeospatialMode.VPS_AND_GPS,
+            deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+        )
+        session.configure(config)
+
+        // 2. Get Geospatial and ArDevice instances
+        val geospatial = Geospatial.getInstance(session)
+        val arDevice = ArDevice.getInstance(session)
+
+        // 3. Collect device pose and convert to geospatial
+        arDevice.state.collect { deviceState ->
+            val pose = deviceState.devicePose
+            if (pose != Pose.Identity) {
+                when (val geoResult = geospatial.createGeospatialPoseFromPose(pose)) {
+                    is CreateGeospatialPoseFromPoseSuccess -> {
+                        val geoPose = geoResult.pose
+                        // geoPose.latitude, geoPose.longitude, geoPose.altitude
+                    }
+                    else -> { /* Not tracking */ }
+                }
+            }
+        }
+    }
+    else -> { /* Session creation failed */ }
+}
+```
+
+**Gotchas**:
+- Use `DeviceTrackingMode.LAST_KNOWN` (NOT `SPATIAL_LAST_KNOWN`)
+- Use top-level `GeospatialMode`/`DeviceTrackingMode` enums (NOT `Config.GeospatialMode`)
+- Result types are top-level: `SessionCreateSuccess`, `CreateGeospatialPoseFromPoseSuccess`
+- Check `pose != Pose.Identity` before attempting Geospatial conversion
+- Success result field is `.pose` (type GeospatialPose)
+- Requires INTERNET, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION permissions
+- Google Cloud project must have ARCore API enabled
+
+**Source**: experiments/ar/010-geospatial-location
+
+---
