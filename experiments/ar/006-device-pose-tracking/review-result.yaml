@@ -1,0 +1,19 @@
+experiment_id: "006"
+timestamp: "2026-04-06T22:40:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
+verdict: "PASS"
+feedback: |
+  UX: TitleChip+Cardの最小構成でポーズ情報を表示。
+  position/rotationの値をカラーコード(positive/primary)で区別するのは良い。
+  コード: Session作成のsealed class handling、ArDeviceのFlow collection、
+  ライフサイクル管理が全て適切。
+  再利用性: AR Session初期化パターンは全てのAR系実験の基礎として再利用可能。
+  ドキュメント: APIの使い方が明確に記述されている。
+extractable_patterns:
+  - "XR Session作成+デバイストラッキング有効化パターン"
+  - "ArDevice ポーズ収集パターン"

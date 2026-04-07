@@ -87,3 +87,17 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/architecture-patterns.md: 通知ブリッジングパターン, sealed class Result型
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 006: デバイスポーズトラッキング基礎
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: XR Runtime Session + ARCore ArDeviceによるデバイスポーズ(position+rotation)リアルタイム取得・表示。Session/Config/ArDeviceの基本パターン確立。
+- **API Coverage**:
+  - `Session.create()`, `SessionCreateSuccess`, `SessionCreateResult`
+  - `Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN)`
+  - `Session.configure(config)`
+  - `ArDevice.getInstance(session)`, `ArDevice.state` (StateFlow)
+  - `Pose.translation` (Vector3), `Pose.rotation` (Quaternion), `Pose.Identity`
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/ar-patterns.md: XR Session初期化パターン, ArDeviceポーズ収集パターン
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)

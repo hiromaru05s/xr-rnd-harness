@@ -1,0 +1,23 @@
+id: "006"
+title: "デバイスポーズトラッキング基礎"
+category: "ar"
+priority: "high"
+hypothesis: "XR Runtime SessionとARCore ArDeviceを使って、AIグラスのデバイス姿勢(position+rotation)をリアルタイムで取得し、Glimmer UIに表示できる"
+scope:
+  - "Session.create()とSessionCreateResultのハンドリング"
+  - "Config(deviceTracking=SPATIAL_LAST_KNOWN)の設定"
+  - "ArDevice.getInstance()でデバイスポーズ取得"
+  - "ポーズ情報(Vector3 translation, Quaternion rotation)のUI表示"
+  - "TrackingStateの状態管理とUI反映"
+skills_needed:
+  - "xr-runtime"
+  - "glimmer-api"
+success_criteria:
+  - "Sessionが正常に作成・設定される"
+  - "ArDeviceからポーズ情報が取得できる"
+  - "position(x,y,z)とrotation情報がUIに表示される"
+  - "TrackingStateに応じたUI切り替えが動作する"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 2
+verification_level: "static"
