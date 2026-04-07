@@ -1,0 +1,24 @@
+id: "012"
+title: "グラスハードウェア権限管理パターン"
+category: "architecture"
+priority: "medium"
+hypothesis: "ProjectedPermissionsResultContractを使ったグラス固有の権限リクエストフローと、権限状態に応じた段階的UI表示が実装できる"
+scope:
+  - "ProjectedPermissionsResultContractでの権限リクエスト"
+  - "ProjectedPermissionsRequestParams構築"
+  - "CAMERA/RECORD_AUDIO権限の段階的リクエスト"
+  - "権限状態に応じたUI切り替え（許可/拒否/未要求）"
+  - "権限拒否時のリトライUIとTTSフォールバック"
+skills_needed:
+  - "projected-api"
+  - "glimmer-api"
+  - "glasses-hardware"
+success_criteria:
+  - "ProjectedPermissionsResultContractが正しく登録される"
+  - "権限リクエストUIが表示される"
+  - "権限状態に応じたUI切り替えが動作する"
+  - "拒否時のリトライフローが実装されている"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"
