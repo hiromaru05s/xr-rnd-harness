@@ -116,3 +116,17 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/ui-patterns.md: Surface/SurfaceDefaultsカスタマイズ, Card全スロット活用
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 008: TTS音声フィードバックシステム
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: Android TTS音声フィードバック管理。sealed class TtsState(5状態)、UtteranceProgressListener、PresentationMode連動のディスプレイON/OFF自動切替。
+- **API Coverage**:
+  - `TextToSpeech` (QUEUE_FLUSH, QUEUE_ADD)
+  - `UtteranceProgressListener` (onStart, onDone, onError)
+  - `PresentationMode.VISUALS_ON` 連動モード切替
+  - sealed class `TtsState` (Initializing/Ready/Speaking/Completed/Error)
+  - `GlimmerTheme.colors.negative` for stop button
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/voice-patterns.md: TtsManager sealed state管理パターン
+  - patterns/architecture-patterns.md: PresentationMode連動パターン, Robust lifecycle (reused)

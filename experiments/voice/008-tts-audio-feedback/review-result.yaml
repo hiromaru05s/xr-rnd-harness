@@ -1,0 +1,19 @@
+experiment_id: "008"
+timestamp: "2026-04-06T23:10:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
+verdict: "PASS"
+feedback: |
+  UX: TitleChipでフィードバックモード表示、Card+VerticalListで操作UI。
+  ディスプレイOFF検知→TTS自動切替は実用的。
+  コード: TtsManager sealed class TtsStateパターンが模範的。
+  UtteranceProgressListenerの正しいライフサイクル管理。
+  再利用性: TtsManagerは他の実験で即再利用可能な汎用クラス。
+  ドキュメント: QUEUE_FLUSH/ADDの違い、モード切替の仕組みが明確。
+extractable_patterns:
+  - "TtsManager sealed state管理パターン"
+  - "PresentationMode連動フィードバックモード切替パターン"

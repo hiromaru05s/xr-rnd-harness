@@ -1,0 +1,24 @@
+id: "008"
+title: "TTS音声フィードバックシステム"
+category: "voice"
+priority: "medium"
+hypothesis: "Android TTSをグラスの音声フィードバックとして使い、UI操作の確認音や状態通知を実装できる。ディスプレイレスモード(VISUALS_OFF)時にはTTSのみで情報伝達できる"
+scope:
+  - "TextToSpeechの初期化とステータス管理"
+  - "QUEUE_FLUSH/QUEUE_ADDによる発話制御"
+  - "UtteranceProgressListenerで発話完了検知"
+  - "PresentationMode.VISUALS_ONの状態に応じた出力切り替え(視覚+音声 / 音声のみ)"
+  - "タッチパッド操作時の音声フィードバック連動"
+skills_needed:
+  - "glasses-hardware"
+  - "glimmer-api"
+  - "projected-api"
+success_criteria:
+  - "TTSが正常に初期化され発話できる"
+  - "UtteranceProgressListenerで発話完了が検知できる"
+  - "ディスプレイON/OFFに応じたフィードバックモード切替が動作する"
+  - "タッチパッド操作に対する音声フィードバックが動作する"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"

@@ -135,3 +135,62 @@ tts?.shutdown()
 **Source**: experiments/voice/003-gemini-voice-loop
 
 ---
+
+## TtsManager Sealed State管理パターン
+
+**いつ使う**: AIグラスでTTS音声フィードバックを管理するとき
+**前提**: Android標準API（追加ライブラリ不要）
+
+```kotlin
+import android.content.Context
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+
+class TtsManager(
+    context: Context,
+    private val onStateChanged: (TtsState) -> Unit,
+) {
+    sealed class TtsState {
+        data object Initializing : TtsState()
+        data object Ready : TtsState()
+        data class Speaking(val utteranceId: String) : TtsState()
+        data class Completed(val utteranceId: String) : TtsState()
+        data class Error(val message: String) : TtsState()
+    }
+
+    private var tts: TextToSpeech? = null
+    private var utteranceCounter = 0
+
+    init {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String) { onStateChanged(TtsState.Speaking(utteranceId)) }
+                    override fun onDone(utteranceId: String) { onStateChanged(TtsState.Completed(utteranceId)) }
+                    @Deprecated("Deprecated in Java")
+                    override fun onError(utteranceId: String) { onStateChanged(TtsState.Error(utteranceId)) }
+                })
+                onStateChanged(TtsState.Ready)
+            }
+        }
+    }
+
+    fun speakFlush(text: String): String? {
+        val id = "utt_${++utteranceCounter}"
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, id)
+        return id
+    }
+
+    fun shutdown() { tts?.stop(); tts?.shutdown(); tts = null }
+}
+```
+
+**ハマりポイント**:
+- QUEUE_FLUSH: 即座に読み上げ、他を中断。QUEUE_ADD: キューに追加
+- UtteranceProgressListenerのonErrorは@Deprecated。新しいオーバーロードもあるが後方互換のため旧版も実装
+- shutdown()はonDestroyで必ず呼ぶ。リソースリーク防止
+- runOnUiThread{}でUI更新（Listenerコールバックは非メインスレッド）
+
+**出典**: experiments/voice/008-tts-audio-feedback
+
+---
