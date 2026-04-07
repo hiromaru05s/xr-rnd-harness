@@ -246,3 +246,38 @@ Card(
 - `leadingIcon` はLargeサイズとの組み合わせが見やすい
 
 **出典**: experiments/ui/001-glimmer-basic-ui
+
+## VerticalList 中央揃えパターン
+
+**いつ使う**: VerticalListのアイテムを画面中央に揃えたいとき（デフォルトはAlignment.Start=左寄せ）
+**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+
+```kotlin
+import androidx.compose.ui.Alignment
+import androidx.xr.glimmer.ListItem
+import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.items
+
+// horizontalAlignment を明示しないとデフォルトの Alignment.Start（左寄せ）になる
+VerticalList(
+    horizontalAlignment = Alignment.CenterHorizontally,
+) {
+    items(menuItems) { item ->
+        ListItem(
+            onClick = { /* アクション */ },
+        ) {
+            Text(item.label)
+        }
+    }
+}
+```
+
+**ハマりポイント**:
+- VerticalListのデフォルト `horizontalAlignment` は `Alignment.Start`。Column内でCenterHorizontallyを設定していても、VerticalListは独自のalignmentを使う
+- 親のColumn/Boxが中央揃えでも、VerticalList内のアイテムは左寄せになるので注意
+- 透過ディスプレイでは中央揃えが特に重要（視線の焦点が中央にあるため）
+
+**出典**: experiments/ui/001-glimmer-basic-ui (人間フィードバック対応で発見)
+
+---

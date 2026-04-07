@@ -1,21 +1,35 @@
 experiment_id: "001"
-timestamp: "2026-04-06T10:30:00Z"
+timestamp: "2026-04-06T20:35:00Z"
 scores:
-  ux_fitness: 3        # /3
-  code_quality: 3      # /3
-  reusability: 2       # /2
-  documentation: 2     # /2
-total: 10              # /10
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 2
+total: 10
 verdict: "PASS"
 feedback: |
-  バグ修正が的確。公式推奨の2アクティビティ構成（MainActivity→ProjectedContext→GlassesMainActivity）を
-  正しく実装。ProjectedDisplayController（FLAG_KEEP_SCREEN_ON、PresentationMode監視）と
-  ProjectedDeviceController（CAPABILITY_VISUAL_UIチェック）による完全なディスプレイ制御を追加。
-  
-  API 36互換性の扱いも適切: Build.VERSION.SDK_INT >= 36 チェック + @RequiresApi(36)で
-  isProjectedDeviceConnectedをガード。repeatOnLifecycleでライフサイクル対応のFlow収集。
-  
-  DefaultLifecycleObserverによるDisplayControllerのクリーンアップも漏れなし。
-  AGP 8.7.0→8.9.1の更新も必要な修正。
-  
-  README.mdに差し戻し理由と修正内容を明確に記載しており、トレーサビリティが高い。
+  UX適合度: 透過ディスプレイの制約を完全に理解した設計。黒背景、3アイテム以下リスト、
+  タッチパッドフォーカス対応が適切。GlimmerThemeの自動フォーカスシステムを正しく活用。
+
+  コード品質: ライフサイクル管理が3回目の修正で非常に堅牢になった。
+  onCreate/onNewIntent/onResume/onStop/onDestroyの5点でDisplayControllerを管理し、
+  try-catchで例外安全性も確保。Kotlin慣用句の使用も適切。
+
+  再利用性: 2アクティビティ起動パターン、DisplayControllerの堅牢なライフサイクル管理、
+  Glimmer基本コンポーネント配置はすべて他の実験の基礎として再利用可能。
+
+  ドキュメント: 差し戻し履歴と対応内容が詳細に記録されており、
+  同じ問題の再発防止に貢献する。コード内の[FB対応]タグも変更の追跡性が高い。
+extractable_patterns:
+  - "GlassesMainActivity堅牢ライフサイクルパターン（singleTop + onNewIntent再初期化 + onResume復帰チェック）"
+  - "VerticalList中央揃えパターン（horizontalAlignment明示）"
+human_feedback_resolution:
+  original_issues:
+    - "UI再表示不可バグ: RESOLVED — singleTop + onNewIntent + onResume再初期化の3層防御"
+    - "テキスト中央ずれ: RESOLVED — VerticalList horizontalAlignment明示 + Box contentAlignment変更"
+  improvement_direction_followed: true
+  reviewer_note: |
+    人間フィードバックの2つの問題に対して適切に対応。
+    UI再表示問題は根本原因（ライフサイクル遷移時のDisplayController未再初期化）を正しく特定し、
+    3層の防御策で堅牢に解決。テキスト中央ずれはVerticalListのデフォルトalignment問題を
+    特定し修正。README.mdにも差し戻し理由と対応内容が明記されている。

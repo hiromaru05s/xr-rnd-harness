@@ -3,6 +3,7 @@ package com.example.glimmerbasicui
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -34,6 +35,10 @@ import kotlinx.coroutines.launch
  * グラスデバイスの接続状態を監視し、接続時に
  * ProjectedContext.createProjectedActivityOptions() 経由で
  * GlassesMainActivity をグラスディスプレイ上に起動する。
+ *
+ * [FB対応] FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP で起動することで、
+ * 既存の GlassesMainActivity インスタンスを再利用し、onNewIntent で
+ * DisplayController を再初期化する。
  */
 @OptIn(ExperimentalProjectedApi::class)
 class MainActivity : ComponentActivity() {
@@ -69,10 +74,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * [FB対応] GlassesMainActivity を ProjectedContext 経由で起動。
+     * FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP を設定し、
+     * 既存インスタンスがある場合は onNewIntent で再初期化させる。
+     */
     private fun launchGlassesActivity() {
-        val options = ProjectedContext.createProjectedActivityOptions(this)
-        val intent = Intent(this, GlassesMainActivity::class.java)
-        startActivity(intent, options.toBundle())
+        try {
+            val options = ProjectedContext.createProjectedActivityOptions(this)
+            val intent = Intent(this, GlassesMainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            startActivity(intent, options.toBundle())
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch glasses activity", e)
+        }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
 

@@ -15,10 +15,17 @@
             </intent-filter>
         </activity>
 
-        <!-- グラス用アクティビティ: ProjectedContext経由で起動、LAUNCHERカテゴリなし -->
+        <!--
+            グラス用アクティビティ: ProjectedContext経由で起動、LAUNCHERカテゴリなし
+            [FB対応] android:launchMode="singleTop" を追加。
+            既存インスタンスがタスクの先頭にある場合、新しいインスタンスを作らず
+            onNewIntent で再利用する。これにより別画面から戻った際の
+            UI再表示問題を解決する。
+        -->
         <activity
             android:name=".GlassesMainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:requiredDisplayCategory="xr_projected"
             android:label="Glimmer Basic UI - Glasses">
             <intent-filter>

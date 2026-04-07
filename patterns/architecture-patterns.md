@@ -175,3 +175,148 @@ class GlassesMainActivity : ComponentActivity() {
 **出典**: experiments/ui/001-glimmer-basic-ui
 
 ---
+
+## GlassesMainActivity 堅牢ライフサイクルパターン
+
+**いつ使う**: GlassesMainActivityでDisplayControllerを使う場合。別画面から戻った際のUI再表示問題を防ぐ。全グラスアプリで必須。
+**前提**: `implementation("androidx.xr.projected:projected:1.0.0-alpha05")`, `android:launchMode="singleTop"` をManifestに設定
+
+```kotlin
+// === GlassesMainActivity.kt: 堅牢なライフサイクル管理 ===
+package com.example.myapp
+
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.xr.glimmer.GlimmerTheme
+import androidx.xr.projected.ProjectedDeviceController
+import androidx.xr.projected.ProjectedDeviceController.Capability.Companion.CAPABILITY_VISUAL_UI
+import androidx.xr.projected.ProjectedDisplayController
+import androidx.xr.projected.ProjectedDisplayController.PresentationMode
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalProjectedApi::class)
+class GlassesMainActivity : ComponentActivity() {
+
+    private var displayController: ProjectedDisplayController? = null
+    private var isVisualUiSupported by mutableStateOf(false)
+    private var areVisualsOn by mutableStateOf(true)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // ライフサイクルオブザーバーでDisplayControllerをクリーンアップ
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                releaseDisplayController()
+            }
+        })
+
+        initializeGlassesFeatures()
+
+        setContent {
+            GlimmerTheme {
+                if (isVisualUiSupported && areVisualsOn) {
+                    // グラス側UIをここに配置
+                }
+            }
+        }
+    }
+
+    // singleTopで再利用時にDisplayControllerを再初期化
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        releaseDisplayController()
+        initializeGlassesFeatures()
+    }
+
+    // バックグラウンドからの復帰時にnullなら再初期化
+    override fun onResume() {
+        super.onResume()
+        if (displayController == null) {
+            initializeGlassesFeatures()
+        }
+    }
+
+    // isFinishing時のみ早期解放（通常のバックグラウンド遷移では解放しない）
+    override fun onStop() {
+        super.onStop()
+        if (isFinishing) {
+            releaseDisplayController()
+        }
+    }
+
+    private fun initializeGlassesFeatures() {
+        lifecycleScope.launch {
+            try {
+                val deviceController = ProjectedDeviceController.create(this@GlassesMainActivity)
+                isVisualUiSupported = deviceController.capabilities.contains(CAPABILITY_VISUAL_UI)
+
+                val controller = ProjectedDisplayController.create(this@GlassesMainActivity)
+                displayController = controller
+                controller.addLayoutParamsFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                controller.addPresentationModeChangedListener { flags ->
+                    areVisualsOn = flags.hasPresentationMode(PresentationMode.VISUALS_ON)
+                }
+            } catch (e: Exception) {
+                Log.e("GlassesMainActivity", "Failed to initialize", e)
+            }
+        }
+    }
+
+    private fun releaseDisplayController() {
+        displayController?.let { controller ->
+            try { controller.close() } catch (e: Exception) {
+                Log.w("GlassesMainActivity", "Error closing DisplayController", e)
+            }
+        }
+        displayController = null
+    }
+}
+```
+
+```xml
+<!-- AndroidManifest.xml: singleTop必須 -->
+<activity
+    android:name=".GlassesMainActivity"
+    android:exported="true"
+    android:launchMode="singleTop"
+    android:requiredDisplayCategory="xr_projected"
+    android:label="Glasses Activity">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+    </intent-filter>
+</activity>
+```
+
+```kotlin
+// MainActivity側: CLEAR_TOP + SINGLE_TOP フラグで起動
+private fun launchGlassesActivity() {
+    val options = ProjectedContext.createProjectedActivityOptions(this)
+    val intent = Intent(this, GlassesMainActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    }
+    startActivity(intent, options.toBundle())
+}
+```
+
+**ハマりポイント**:
+- `launchMode="singleTop"` なしだと、再起動時に新しいインスタンスが作られ、前のインスタンスのDisplayControllerがリークする
+- `onNewIntent` をオーバーライドしないと、singleTopでintentが更新されてもDisplayControllerが再初期化されない
+- `onResume` でのnullチェックがないと、バックグラウンドからの復帰時にUIが出ない
+- `onStop` で無条件にcloseすると、一時的なバックグラウンド遷移でもDisplayControllerが解放されてしまう。`isFinishing` でガードする
+- `FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP` をMainActivity側で設定することで、既存インスタンスの再利用を確実にする
+
+**出典**: experiments/ui/001-glimmer-basic-ui (人間フィードバック対応で確立)
+
+---

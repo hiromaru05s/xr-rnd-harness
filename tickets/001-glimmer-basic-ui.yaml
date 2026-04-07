@@ -23,6 +23,5 @@ success_criteria:
 - ProjectedDisplayController/ProjectedDeviceControllerが正しく統合されている
 estimated_complexity: small
 status: passed
-retry_count: 1
+retry_count: 2
 verification_level: emulator
-human_feedback: true

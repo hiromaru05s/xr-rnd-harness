@@ -42,17 +42,23 @@ import androidx.xr.glimmer.list.items
  * - VerticalList + ListItem x3: タッチパッドフォーカスナビゲーション確認
  *
  * GlimmerTheme のフォーカスシステムがアウトラインベースのハイライトを自動管理する。
+ *
+ * [FB対応] テキストの中央揃えを徹底:
+ * - VerticalList に horizontalAlignment = Alignment.CenterHorizontally を明示
+ * - Column/Box の中央揃え設定を再確認
+ * - fillMaxWidth で均等幅レイアウトを確保
  */
 @Composable
 fun BasicUiScreen(modifier: Modifier = Modifier) {
     var selectedLabel by remember { mutableStateOf("選択なし") }
 
+    // 黒背景 = 加算光方式で透過ディスプレイ上では透明になる
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)  // 透過ディスプレイ: 黒=透明
+            .background(Color.Black)
             .padding(horizontal = 24.dp, vertical = 16.dp),
-        contentAlignment = Alignment.TopCenter,
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -73,6 +79,7 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
 
             // Card + Button (Medium確認 + Large+アイコン確認)
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 title = { Text("アクション") },
                 action = {
                     // Mediumサイズ Button
@@ -99,9 +106,11 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            // VerticalList: 3アイテム以下（グラス制約）
+            // [FB対応] VerticalList に horizontalAlignment を明示して中央揃え
             // タッチパッドの前後スワイプでフォーカスが移動し、アウトラインが変化する
-            VerticalList {
+            VerticalList(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 items(menuItems) { item ->
                     ListItem(
                         onClick = { selectedLabel = item.label },

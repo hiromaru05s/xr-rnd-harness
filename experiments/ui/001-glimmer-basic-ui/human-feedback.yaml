@@ -1,0 +1,9 @@
+reviewer: human (Hiromaru)
+verdict: REJECT
+timestamp: '2026-04-06 20:13:40'
+reason: UI表示バグ、見た目
+severity: high
+specific_issues:
+- ・エミュ起動時にはUIが見えるが、一回別の画面に行ったり、リセットしたりすると同じセッションではどれだけアプリを再起動したりしてもUIが表示されない。
+- ・また、テキストがほんの少し中央からずれているように見える。
+improvement_direction: "・いつでもアプリが再起動できるようにしたい。\r\n・テキストを中央に揃えて。"
