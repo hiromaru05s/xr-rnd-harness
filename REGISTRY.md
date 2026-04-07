@@ -27,3 +27,19 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **パターン参照**:
   - patterns/ui-patterns.md: Glimmer基本コンポーネント配置, TitleChipステータス表示, Card+Button組み合わせ
   - patterns/architecture-patterns.md: スマホ→グラス2アクティビティ起動パターン, GlassesMainActivity堅牢ライフサイクルパターン
+
+### 002: Touchpad Gesture Navigation
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: Touchpad swipe-based VerticalStack card flipping and VerticalList
+  focus-based scrolling. onIndirectPointerGesture integration with StackState
+  for programmatic card navigation. Mode switching between Card Stack and List View.
+- **API Coverage**:
+  - `onIndirectPointerGesture` (onSwipeForward, onSwipeBackward, onClick)
+  - `.focusTarget()` (required for gesture detection)
+  - `VerticalStack` + `StackState` + `rememberStackState()` + `animateScrollToItem()`
+  - `VerticalList` + `items()` (focus-based scrolling)
+  - `Card`, `Button` (Medium/Large), `ListItem`, `TitleChip`, `Icon`, `Text`
+  - Robust lifecycle pattern (from 001): singleTop + onNewIntent + onResume
+- **Pattern References**:
+  - patterns/input-patterns.md: Touchpad gesture detection, VerticalStack card navigation
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused from 001)
