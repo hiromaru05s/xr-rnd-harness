@@ -1,0 +1,28 @@
+id: "018"
+title: "位置情報連動POI表示システム"
+category: "integration"
+priority: "medium"
+hypothesis: "Geospatial APIの位置情報とデバイスポーズを組み合わせて、近隣POI情報をグラスUIにコンパス方向付きで表示する統合パターンが確立できる"
+scope:
+  - "Geospatial APIで現在位置(lat/lng)をリアルタイム取得"
+  - "ArDeviceポーズからデバイスの向き(heading)を算出"
+  - "ダミーPOIデータに対する距離・方向計算ロジック"
+  - "タッチパッドスワイプでPOIリスト切替"
+  - "TTS音声でPOI名と距離を読み上げ"
+  - "Glimmer UIでPOIカード表示（方向アイコン+距離+名前）"
+skills_needed:
+  - "glimmer-api"
+  - "projected-api"
+  - "glasses-hardware"
+  - "glasses-arch"
+  - "xr-runtime"
+success_criteria:
+  - "Geospatial位置情報がリアルタイムで取得・表示される"
+  - "デバイスの向き(heading)が算出されUI反映される"
+  - "POIとの距離・方向計算が正しい"
+  - "タッチパッドでPOI切替+TTS読み上げが動作する"
+  - "黒背景・FOV準拠・3アイテム以下のUI"
+verification_level: "static"
+estimated_complexity: "large"
+status: "passed"
+retry_count: 0

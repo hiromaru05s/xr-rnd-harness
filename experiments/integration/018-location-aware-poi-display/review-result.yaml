@@ -1,0 +1,16 @@
+experiment_id: "018"
+timestamp: "2026-04-06T11:30:00Z"
+scores:
+  ux_fitness: 3
+  code_quality: 3
+  reusability: 2
+  documentation: 1
+total: 9
+verdict: "PASS"
+feedback: |
+  Strong integration of Geospatial + ArDevice pose + TTS + touchpad navigation.
+  GeoUtils with Haversine formula is clean and well-tested. 8-direction relative
+  direction from quaternion heading is novel. Top-3 nearest POIs sorted by distance
+  keeps UI within FOV constraint. Distance formatting (m/km) improves readability.
+  TTS reads name+distance+direction for hands-free orientation.
+  Slightly more inline documentation in GlassesMainActivity would improve score.

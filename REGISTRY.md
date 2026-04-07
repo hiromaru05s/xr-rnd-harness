@@ -265,3 +265,20 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
   - patterns/input-patterns.md: Notification queue + touchpad navigation
   - patterns/voice-patterns.md: Auto-read notification with TTS
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 018: Location-Aware POI Display
+- **PASS Date**: 2026-04-06 (9/10)
+- **Feature**: Geospatial location + device pose heading for compass-direction POI display. Haversine distance calculation, 8-direction relative bearing, top-3 nearest POI filtering, touchpad navigation with TTS read-aloud.
+- **API Coverage**:
+  - `Session.create()`, `Config(geospatial = GeospatialMode.VPS_AND_GPS, deviceTracking = DeviceTrackingMode.LAST_KNOWN)`
+  - `Geospatial.getInstance(session)`, `createGeospatialPoseFromPose(pose)`, `CreateGeospatialPoseFromPoseSuccess`
+  - `ArDevice.getInstance(session)`, `ArDevice.state` (StateFlow), `Pose.rotation` (Quaternion)
+  - Quaternion to yaw heading conversion
+  - `GeoUtils` (Haversine distance, bearing, 8-direction relative direction, distance formatting)
+  - `onIndirectPointerGesture` + `focusTarget()` for POI navigation
+  - `TextToSpeech` (QUEUE_FLUSH) for POI name + distance + direction read-aloud
+  - `PoiState` sealed class (4 states: Initializing/WaitingForLocation/Tracking/Error)
+  - Robust lifecycle pattern (singleTop + onNewIntent + onResume)
+- **Pattern References**:
+  - patterns/ar-patterns.md: Geospatial + Heading POI display pattern
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
