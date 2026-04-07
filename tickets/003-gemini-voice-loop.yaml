@@ -19,6 +19,6 @@ success_criteria:
   - "会話状態がUIに反映される"
   - "セッションの開始/終了が安定して動作する"
 estimated_complexity: "medium"
-status: "queued"
+status: "passed"
 retry_count: 0
 verification_level: "emulator"

@@ -43,3 +43,19 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/input-patterns.md: Touchpad gesture detection, VerticalStack card navigation
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused from 001)
+
+### 003: Gemini Live Voice Conversation Loop
+- **PASS Date**: 2026-04-06 (9/10)
+- **Feature**: Gemini Live API integration for real-time voice conversation on
+  AI glasses. Native audio output, conversation state management, TTS fallback.
+- **API Coverage**:
+  - `Firebase.ai(backend = GenerativeBackend.googleAI()).liveModel()`
+  - `LiveModel.connect()`, `LiveSession.startAudioConversation()`
+  - `ResponseModality.AUDIO`, `SpeechConfig`, `Voice("FENRIR")`
+  - `transcriptHandler` callback, `enableInterruptions`
+  - `TextToSpeech` (built-in Android TTS for error fallback)
+  - `GlimmerTheme.colors.negative` for Stop button styling
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/voice-patterns.md: Gemini Live initialization, ConversationState, Voice-first UI
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
