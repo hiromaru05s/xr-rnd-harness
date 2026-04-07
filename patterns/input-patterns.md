@@ -163,3 +163,61 @@ class GlassesMainActivity : ComponentActivity() {
 **Source**: experiments/input/004-camera-button-input
 
 ---
+
+## TTS + Touchpad Integrated Navigation
+
+**When to use**: When combining voice feedback with touchpad gesture navigation for accessible UI
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`, Android TTS (built-in)
+
+```kotlin
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import androidx.compose.foundation.focusable
+import androidx.xr.glimmer.onIndirectPointerGesture
+
+// Activity: TTS setup + navigation state
+private var tts: TextToSpeech? = null
+private var currentIndex by mutableIntStateOf(0)
+private val cards = listOf("Page 1" to "Content 1", "Page 2" to "Content 2")
+
+// Initialize TTS in onCreate
+tts = TextToSpeech(this) { status ->
+    if (status == TextToSpeech.SUCCESS) {
+        speakCurrentCard()
+    }
+}
+
+private fun navigateForward() {
+    if (currentIndex < cards.size - 1) {
+        currentIndex++
+        speakCurrentCard()
+    }
+}
+
+private fun speakCurrentCard() {
+    val (title, desc) = cards[currentIndex]
+    tts?.speak("$title. $desc", TextToSpeech.QUEUE_FLUSH, null, "card_$currentIndex")
+}
+
+// Composable: gesture detection
+Box(
+    modifier = Modifier
+        .onIndirectPointerGesture(
+            onSwipeForward = onSwipeForward,
+            onSwipeBackward = onSwipeBackward,
+            onClick = onClick,
+        )
+        .focusable()
+) { /* content */ }
+```
+
+**Gotchas**:
+- `focusable()` MUST follow `onIndirectPointerGesture` for gesture detection to work
+- `QUEUE_FLUSH` ensures only one utterance plays at a time
+- Check PresentationMode.VISUALS_ON for dual-mode (visual+voice / voice-only)
+- Clean up TTS in onDestroy: `tts?.stop(); tts?.shutdown()`
+- Card count should be 3 or fewer for FOV constraint
+
+**Source**: experiments/integration/011-voice-touchpad-integration
+
+---

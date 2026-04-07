@@ -1,0 +1,24 @@
+id: "011"
+title: "音声+タッチパッド統合ナビゲーション"
+category: "integration"
+priority: "high"
+hypothesis: "TTS音声フィードバックとタッチパッドジェスチャーナビゲーションを統合して、操作のたびに音声確認が入るアクセシブルなUIが作れる"
+scope:
+  - "VerticalStackカードフリップ+タッチパッドスワイプ（002パターン再利用）"
+  - "TtsManager音声フィードバック（008パターン再利用）"
+  - "カード切替時の自動音声読み上げ"
+  - "PresentationMode連動（視覚+音声 / 音声のみ）"
+  - "focusTarget+onIndirectPointerGesture統合"
+skills_needed:
+  - "glimmer-api"
+  - "glasses-hardware"
+  - "projected-api"
+success_criteria:
+  - "タッチパッドスワイプでカードが切り替わる"
+  - "カード切替時にTTSで内容が読み上げられる"
+  - "ディスプレイOFF時にTTSのみで操作可能"
+  - "音声とUI表示が同期している"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"
