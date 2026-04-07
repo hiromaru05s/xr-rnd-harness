@@ -130,3 +130,77 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/voice-patterns.md: TtsManager sealed state管理パターン
   - patterns/architecture-patterns.md: PresentationMode連動パターン, Robust lifecycle (reused)
+
+### 009: CameraXグラスカメラキャプチャ
+- **PASS Date**: 2026-04-07 (10/10)
+- **Feature**: CameraX via ProjectedDeviceContext for glasses outward-facing camera access. CaptureState sealed class (7 states) state machine. Permission handling via ProjectedPermissionsResultContract. ResolutionSelector with 640x480 for AI glasses optimized capture.
+- **API Coverage**:
+  - `ProjectedContext.createProjectedDeviceContext()` for glasses camera context
+  - `ProcessCameraProvider.getInstance(projectedContext)` for camera provider
+  - `ImageCapture.Builder()` with `ResolutionSelector`/`ResolutionStrategy`
+  - `CameraSelector.DEFAULT_BACK_CAMERA` for outward-facing camera
+  - `ProjectedPermissionsResultContract`, `ProjectedPermissionsRequestParams` (permissions sub-package)
+  - `CaptureState` sealed class (Initializing, RequestingPermission, PermissionGranted, PermissionDenied, BindingCamera, Ready, Error)
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/camera-patterns.md: CameraX via ProjectedDeviceContext pattern
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 010: Geospatial位置情報取得
+- **PASS Date**: 2026-04-07 (10/10)
+- **Feature**: ARCore Geospatial API with VPS+GPS for geographic coordinates. Session creation with Config(geospatial=VPS_AND_GPS). ArDevice pose to GeospatialPose conversion. GeoState sealed class (6 states).
+- **API Coverage**:
+  - `Session.create()`, `SessionCreateSuccess`
+  - `Config(geospatial = GeospatialMode.VPS_AND_GPS, deviceTracking = DeviceTrackingMode.LAST_KNOWN)`
+  - `Geospatial.getInstance(session)`, `createGeospatialPoseFromPose(pose)`
+  - `CreateGeospatialPoseFromPoseSuccess.pose` (GeospatialPose: latitude, longitude, altitude)
+  - `ArDevice.getInstance(session)`, `ArDevice.state` (StateFlow)
+  - `Pose.Identity` for tracking state detection
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/ar-patterns.md: Geospatial session initialization, Geospatial pose tracking
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 011: 音声+タッチパッド統合ナビゲーション
+- **PASS Date**: 2026-04-07 (9/10)
+- **Feature**: TTS voice feedback integrated with touchpad gesture navigation. Auto-read on card switch. PresentationMode-aware dual mode (Visual+Voice / Voice Only). UtteranceProgressListener for TTS state tracking.
+- **API Coverage**:
+  - `onIndirectPointerGesture` (onSwipeForward, onSwipeBackward, onClick) + `focusable()`
+  - `TextToSpeech` (QUEUE_FLUSH), `UtteranceProgressListener` (onStart, onDone, onError)
+  - `PresentationMode.VISUALS_ON` for dual-mode UI
+  - TtsStatus enum (Idle, Speaking, Completed, Error)
+  - Card-based navigation (3 items, FOV compliant)
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/input-patterns.md: TTS + touchpad integrated navigation
+  - patterns/voice-patterns.md: TTS auto-read pattern
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 012: グラスハードウェア権限管理パターン
+- **PASS Date**: 2026-04-07 (10/10)
+- **Feature**: ProjectedPermissionsResultContract-based permission request flow. PermissionItemState enum (4 states). Progressive UI with state-dependent display. TTS fallback on denial. Retry capability.
+- **API Coverage**:
+  - `ProjectedPermissionsResultContract` (from `projected.permissions` package)
+  - `ProjectedPermissionsRequestParams(permissions, rationale)`
+  - `PermissionItemState` enum (NOT_REQUESTED, REQUESTING, GRANTED, DENIED)
+  - CAMERA + RECORD_AUDIO multi-permission request
+  - `TextToSpeech` for denial fallback
+  - `checkExistingPermissions()` on onResume for state freshness
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/architecture-patterns.md: Glasses permission request flow, Robust lifecycle (reused)
+
+### 013: Glimmerタイポグラフィ・カラーシステム活用
+- **PASS Date**: 2026-04-07 (9/10)
+- **Feature**: All 7 Glimmer typography styles and 8-color system demonstrated. Colors.copy() and Typography.copy() for custom theming. Touchpad-driven 3-page navigation.
+- **API Coverage**:
+  - All 7 typography styles: `titleLarge`, `titleMedium`, `titleSmall`, `bodyLarge`, `bodyMedium`, `bodySmall`, `caption`
+  - All 8 colors: `primary`, `secondary`, `positive`, `negative`, `background`, `surface`, `outline`, `outlineVariant`
+  - `Colors.copy(primary = ...)` for custom color theme
+  - `Typography.copy(titleLarge = ...)` for custom font weight
+  - Nested `GlimmerTheme(colors, typography)` for scoped theming
+  - `onIndirectPointerGesture` + `focusable()` for page navigation
+  - Robust lifecycle pattern (from 001)
+- **Pattern References**:
+  - patterns/ui-patterns.md: Typography scale, Colors.copy() custom theme, Nested GlimmerTheme
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)

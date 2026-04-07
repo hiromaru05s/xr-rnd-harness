@@ -377,3 +377,49 @@ NotificationManagerCompat.from(context).notify(2, msgNotification)
 **出典**: experiments/architecture/005-notification-bridge
 
 ---
+
+## Glasses Permission Request Flow
+
+**When to use**: When requesting hardware permissions (CAMERA, RECORD_AUDIO) on AI glasses
+**Prerequisites**: `implementation("androidx.xr.projected:projected:1.0.0-alpha05")`
+
+```kotlin
+import androidx.activity.result.ActivityResultLauncher
+import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
+import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+
+@OptIn(ExperimentalProjectedApi::class)
+class GlassesMainActivity : ComponentActivity() {
+
+    // Register launcher (must be in property initializer, not onCreate)
+    private val requestPermissionLauncher: ActivityResultLauncher<List<ProjectedPermissionsRequestParams>> =
+        registerForActivityResult(ProjectedPermissionsResultContract()) { results ->
+            // results: Map<String, Boolean>
+            val cameraGranted = results[Manifest.permission.CAMERA] == true
+            val audioGranted = results[Manifest.permission.RECORD_AUDIO] == true
+        }
+
+    private fun requestPermissions() {
+        val params = ProjectedPermissionsRequestParams(
+            permissions = listOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+            ),
+            rationale = "Camera and microphone are required for AI glasses features."
+        )
+        requestPermissionLauncher.launch(listOf(params))
+    }
+}
+```
+
+**Gotchas**:
+- Import from `androidx.xr.projected.permissions` (NOT `androidx.xr.projected`)
+- `registerForActivityResult` must be called during initialization (property/onCreate), not later
+- Multiple permissions in single request: pass all in one `ProjectedPermissionsRequestParams`
+- Result map keys are permission strings (e.g., `Manifest.permission.CAMERA`)
+- Include TTS fallback for permission denial accessibility
+
+**Source**: experiments/architecture/012-permissions-handling
+
+---

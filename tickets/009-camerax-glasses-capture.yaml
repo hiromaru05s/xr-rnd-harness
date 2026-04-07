@@ -1,0 +1,24 @@
+id: "009"
+title: "CameraXグラスカメラキャプチャ"
+category: "camera"
+priority: "high"
+hypothesis: "ProjectedContext.createProjectedDeviceContext()経由でCameraXプロバイダーを取得し、グラスの外向きカメラで画像キャプチャができる"
+scope:
+  - "ProjectedContext.createProjectedDeviceContext()でグラスコンテキスト取得"
+  - "ProcessCameraProvider.getInstance(projectedContext)でカメラプロバイダー取得"
+  - "ImageCapture.Builder()での画像キャプチャ設定"
+  - "ResolutionSelector/ResolutionStrategyでの解像度設定"
+  - "キャプチャ状態をGlimmer UIで表示"
+skills_needed:
+  - "glasses-hardware"
+  - "projected-api"
+  - "glimmer-api"
+success_criteria:
+  - "ProjectedDeviceContextが正常に作成される"
+  - "CameraProviderがグラスカメラを検出する"
+  - "ImageCaptureがlifecycleに正しくバインドされる"
+  - "キャプチャ状態がUIに反映される"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0
+verification_level: "static"
