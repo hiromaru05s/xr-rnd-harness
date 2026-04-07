@@ -337,6 +337,50 @@ def submit_feedback(experiment_path, reason, issues, improvement_direction, seve
 
     return True, f"Feedback submitted for {exp_name}"
 
+
+def approve_experiment(experiment_path):
+    """
+    Approve an experiment after human verification.
+    - Sets human_verified: true on the ticket
+    - Clears human_feedback flag (feedback loop complete)
+    - Adds verification timestamp
+    """
+    exp_full_path = _validate_experiment_path(experiment_path)
+    if exp_full_path is None or not exp_full_path.exists():
+        return False, f"Invalid or non-existent experiment path: {experiment_path}"
+
+    exp_name = exp_full_path.name
+    exp_id = _extract_exp_id(exp_name)
+    if not exp_id:
+        return False, f"Cannot extract experiment ID from: {exp_name}"
+
+    ticket = find_ticket_for_experiment(exp_name)
+    if not ticket or "_file" not in ticket:
+        return False, f"No ticket found for experiment: {exp_name}"
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Update ticket
+    ticket["human_verified"] = True
+    ticket["human_verified_at"] = timestamp
+    # Clear the "needs rebuild" state — feedback loop is complete
+    if ticket.get("human_feedback"):
+        ticket["feedback_resolved"] = True
+    save_ticket(ticket["_file"], {k: v for k, v in ticket.items() if not k.startswith("_")})
+
+    # If human-feedback.yaml exists, mark it as resolved
+    fb_file = exp_full_path / "human-feedback.yaml"
+    if fb_file.exists():
+        with open(fb_file, encoding="utf-8") as fh:
+            fb_data = yaml.safe_load(fh) or {}
+        fb_data["resolved"] = True
+        fb_data["resolved_at"] = timestamp
+        with open(fb_file, "w", encoding="utf-8") as fh:
+            yaml.dump(fb_data, fh, allow_unicode=True, default_flow_style=False, sort_keys=False)
+
+    return True, f"Experiment {exp_name} approved by human"
+
+
 # --- HTML Templates ---
 
 def render_page(title, body, active_tab=""):
@@ -583,6 +627,27 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 """
                 self.serve_html("Error", error_body, "feedback")
 
+        elif parsed.path == "/approve":
+            content_length = int(self.headers["Content-Length"])
+            body = self.rfile.read(content_length).decode("utf-8")
+            params = parse_qs(body)
+            exp_path = params.get("experiment_path", [""])[0]
+
+            success, msg = approve_experiment(exp_path)
+            if success:
+                self.send_response(303)
+                self.send_header("Location", "/experiments?approved=1")
+                self.end_headers()
+            else:
+                error_body = f"""
+                <h1 style="color:#f87171;">Approval Error</h1>
+                <div class="card">
+                  <p>{msg}</p>
+                  <p style="margin-top:12px;"><a href="/experiments">&larr; Experiments に戻る</a></p>
+                </div>
+                """
+                self.serve_html("Error", error_body, "experiments")
+
         elif self.path.startswith("/tickets/") and self.path.endswith("/status"):
             content_length = int(self.headers["Content-Length"])
             body = self.rfile.read(content_length).decode("utf-8")
@@ -628,7 +693,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         total_exp = sum(len(v) for v in experiments.values())
         all_feedback = load_all_feedback()
         fb_count = len(all_feedback)
-        tickets_with_fb = sum(1 for t in tickets if t.get("human_feedback"))
+        tickets_with_fb = sum(1 for t in tickets if t.get("human_feedback") and not t.get("feedback_resolved") and not t.get("human_verified"))
 
         stats = f"""
         <h1>XR R&D Dashboard</h1>
@@ -639,6 +704,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
           <div class="stat"><div class="stat-value">{by_status.get('passed', 0)}</div><div class="stat-label">Passed</div></div>
           <div class="stat"><div class="stat-value">{by_status.get('archived', 0)}</div><div class="stat-label">Archived</div></div>
           <div class="stat"><div class="stat-value">{total_exp}</div><div class="stat-label">Experiments</div></div>
+          <div class="stat"><div class="stat-value" style="color:#4ade80;">{sum(1 for t in tickets if t.get('human_verified'))}</div><div class="stat-label">Verified</div></div>
           <div class="stat stat-feedback"><div class="stat-value">{fb_count}</div><div class="stat-label">Feedback</div></div>
           <div class="stat stat-feedback"><div class="stat-value">{tickets_with_fb}</div><div class="stat-label">FB Pending</div></div>
         </div>
@@ -804,8 +870,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
             <div><span style="color:#666">Complexity:</span> {t.get('estimated_complexity','')}</div>
             <div><span style="color:#666">Retries:</span> {t.get('retry_count',0)}</div>
-            <div><span style="color:#666">Human FB:</span> {'<span class="badge badge-rejected">Yes</span>' if t.get('human_feedback') else '<span style="color:#555">No</span>'}</div>
-            <div><span style="color:#666">Last FB:</span> <span style="color:#555;font-size:11px">{t.get('last_feedback','—')}</span></div>
+            <div><span style="color:#666">Human FB:</span> {'<span class="badge badge-rejected">Yes</span>' if t.get('human_feedback') else '<span style="color:#555">No</span>'}{' <span class="badge badge-passed">Resolved</span>' if t.get('feedback_resolved') else ''}</div>
+            <div><span style="color:#666">Verified:</span> {'<span class="badge badge-passed">Yes</span> <span style="color:#555;font-size:11px">' + str(t.get('human_verified_at','')) + '</span>' if t.get('human_verified') else '<span style="color:#555">No</span>'}</div>
           </div>
           <h3>Hypothesis</h3>
           <p>{t.get('hypothesis','')}</p>
@@ -862,6 +928,10 @@ class DashboardHandler(SimpleHTTPRequestHandler):
 
     # --- Experiments ---
     def serve_experiments(self):
+        parsed = urlparse(self.path)
+        qs = parse_qs(parsed.query)
+        just_approved = "approved" in qs
+
         experiments = load_experiments()
         if not experiments:
             body = '<h1>Experiments</h1><p class="empty">No experiments yet. Run the pipeline to generate some.</p>'
@@ -898,31 +968,98 @@ class DashboardHandler(SimpleHTTPRequestHandler):
 
                 readme_html = exp.get("readme_html", "<p class='empty'>No README</p>")
 
-                # Reject button (only for experiments with PASS verdict)
-                reject_btn = ""
-                has_pass = False
-                if "review_result" in exp:
-                    has_pass = exp["review_result"].get("verdict") == "PASS"
-                if has_pass or "test_result" in exp:
-                    reject_btn = f'<a href="/feedback/new/{exp["path"]}" class="btn-reject" style="padding:4px 12px;border-radius:3px;font-size:11px;font-weight:600;text-decoration:none;color:#000;">差し戻し</a>'
+                # Load findings.md if exists
+                findings_html = ""
+                findings_path = PROJECT_ROOT / exp["path"] / "findings.md"
+                if findings_path.exists():
+                    findings_html = markdown.markdown(
+                        findings_path.read_text(encoding="utf-8"),
+                        extensions=["fenced_code", "tables"]
+                    )
 
-                card_class = "card has-feedback" if "human_feedback" in exp else "card"
+                # Test result details
+                test_detail_html = ""
+                if "test_result" in exp:
+                    tr = exp["test_result"]
+                    checks = tr.get("checks", {})
+                    check_rows = ""
+                    for ck, cv in checks.items():
+                        color = "#4ade80" if cv == "PASS" else "#f87171" if cv == "FAIL" else "#888"
+                        check_rows += f'<span style="color:{color};margin-right:12px;">{ck}: {cv}</span>'
+                    test_detail_html = f'<div style="margin:8px 0;font-size:12px;">{check_rows}</div>'
+
+                # Review result details
+                review_detail_html = ""
+                if "review_result" in exp:
+                    rv = exp["review_result"]
+                    scores = rv.get("scores", {})
+                    score_parts = " / ".join(f"{k}: {v}" for k, v in scores.items())
+                    review_feedback = rv.get("feedback", "")
+                    review_detail_html = f'<div style="margin:8px 0;font-size:12px;color:#aaa;">{score_parts}</div>'
+                    if review_feedback:
+                        review_detail_html += f'<div style="font-size:12px;color:#888;">{review_feedback[:200]}</div>'
+
+                # Determine button states
+                has_active_feedback = "human_feedback" in exp and not exp["human_feedback"].get("resolved", False)
+                has_pass = "review_result" in exp and exp["review_result"].get("verdict") == "PASS"
+                ticket = find_ticket_for_experiment(exp["name"])
+                is_verified = ticket.get("human_verified", False) if ticket else False
+                is_feedback_resolved = ticket.get("feedback_resolved", False) if ticket else False
+
+                # Action buttons
+                action_html = ""
+                if is_verified:
+                    action_html = '<span class="badge badge-passed" style="font-size:12px;padding:4px 12px;">確認済み</span>'
+                elif has_active_feedback:
+                    # Already rejected — show status, no reject button
+                    action_html = '<span class="badge badge-rejected" style="font-size:12px;padding:4px 12px;">差し戻し中</span>'
+                elif has_pass or "test_result" in exp:
+                    # Show both approve and reject buttons
+                    action_html = f'''<form method="POST" action="/approve" style="display:inline;" onsubmit="return confirm('この実験を承認しますか？')">
+                      <input type="hidden" name="experiment_path" value="{exp["path"]}">
+                      <button type="submit" style="padding:4px 12px;border-radius:3px;font-size:11px;font-weight:600;background:#22c55e;color:#000;">承認</button>
+                    </form>
+                    <a href="/feedback/new/{exp["path"]}" class="btn-reject" style="padding:4px 12px;border-radius:3px;font-size:11px;font-weight:600;text-decoration:none;color:#000;">差し戻し</a>'''
+
+                # Human feedback summary (if exists)
+                fb_summary_html = ""
+                if "human_feedback" in exp:
+                    fb = exp["human_feedback"]
+                    resolved_mark = ' <span style="color:#4ade80;">resolved</span>' if fb.get("resolved") else ""
+                    issues_text = " / ".join(fb.get("specific_issues", [])[:3])
+                    fb_summary_html = f'''<div style="background:#f9731610;border:1px solid #f9731630;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:12px;">
+                      <span style="color:#fb923c;font-weight:600;">FB: {fb.get("reason","")}</span>{resolved_mark}
+                      <div style="color:#888;margin-top:4px;">{issues_text}</div>
+                      <div style="color:#9BBFFF;margin-top:4px;">改善方向: {fb.get("improvement_direction","")[:100]}</div>
+                    </div>'''
+
+                card_class = "card has-feedback" if has_active_feedback else "card"
+                verified_border = " style='border-left:3px solid #22c55e;'" if is_verified else ""
                 cards += f"""
-                <div class="{card_class}">
+                <div class="{card_class}"{verified_border}>
                   <div class="card-header">
                     <div><strong>{exp['name']}</strong> <span style="color:#555;font-size:11px">{exp['path']}</span></div>
-                    <div style="display:flex;gap:8px;align-items:center;">{fb_badge} {test_html} {score_html} {reject_btn}</div>
+                    <div style="display:flex;gap:8px;align-items:center;">{fb_badge} {test_html} {score_html} {action_html}</div>
                   </div>
+                  {fb_summary_html}
                   <details><summary style="color:#666;cursor:pointer;font-size:12px;">README.md</summary>
                     <div class="md-content" style="margin-top:8px;">{readme_html}</div>
                   </details>
+                  {f'<details><summary style="color:#666;cursor:pointer;font-size:12px;">Test Results</summary>{test_detail_html}</details>' if test_detail_html else ''}
+                  {f'<details><summary style="color:#666;cursor:pointer;font-size:12px;">Review Results</summary>{review_detail_html}</details>' if review_detail_html else ''}
+                  {f'<details><summary style="color:#666;cursor:pointer;font-size:12px;">Findings</summary><div class="md-content" style="margin-top:8px;">{findings_html}</div></details>' if findings_html else ''}
                 </div>"""
 
             contents += f'<div class="tab-content {active}" id="tab-{cat}">{cards}</div>'
             first = False
 
+        approved_banner = ""
+        if just_approved:
+            approved_banner = '<div style="background:#22c55e20;border:1px solid #22c55e40;border-radius:4px;padding:10px 16px;margin-bottom:16px;color:#4ade80;">実験を承認しました。人間確認済みとしてマークされました。</div>'
+
         body = f"""
         <h1>Experiments</h1>
+        {approved_banner}
         <div class="tab-group">{tabs}</div>
         {contents}
         <script>
@@ -1018,20 +1155,25 @@ class DashboardHandler(SimpleHTTPRequestHandler):
               <div class="stat"><div class="stat-value" style="color:#4ade80;">{severity_counts.get('low',0)}</div><div class="stat-label">Low</div></div>
             </div>"""
 
+        # Separate active vs resolved feedback
+        active_feedback = [fb for fb in all_feedback if not fb.get("resolved", False)]
+        resolved_feedback = [fb for fb in all_feedback if fb.get("resolved", False)]
+
         # Feedback cards
         fb_cards = ""
         for fb in all_feedback:
             issues_html = "".join(f"<li>{i}</li>" for i in fb.get("specific_issues", []))
             history_count = len(fb.get("history", []))
             retry_note = f'<span class="badge badge-medium">retry x{history_count + 1}</span>' if history_count else ""
+            resolved_mark = '<span class="badge badge-passed" style="margin-left:8px;">resolved</span>' if fb.get("resolved") else ""
 
             fb_cards += f"""
-            <div class="fb-entry">
+            <div class="fb-entry" {"style='opacity:0.6;'" if fb.get('resolved') else ""}>
               <div class="fb-entry-header">
                 <div>
                   <strong>{fb.get('_experiment','')}</strong>
                   <span class="badge badge-{fb.get('_category','')}" style="margin-left:8px;">{fb.get('_category','')}</span>
-                  {retry_note}
+                  {retry_note} {resolved_mark}
                 </div>
                 <div>{severity_badge(fb.get('severity','medium'))} <span class="fb-timestamp">{fb.get('timestamp','')}</span></div>
               </div>
@@ -1049,7 +1191,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         {success_banner}
         {stats_html}
         <div class="tab-group">
-          <div class="tab active" onclick="switchFbTab('active')">Active Feedback ({len(all_feedback)})</div>
+          <div class="tab active" onclick="switchFbTab('active')">Active Feedback ({len(active_feedback)}){f' / Resolved ({len(resolved_feedback)})' if resolved_feedback else ''}</div>
           <div class="tab" onclick="switchFbTab('archive')">Archive (human-rejections.md)</div>
         </div>
         <div class="tab-content active" id="fbtab-active">

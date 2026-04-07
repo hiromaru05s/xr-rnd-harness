@@ -19,5 +19,8 @@ settings.local.json
 __pycache__/
 *.pyc
 
+# Human feedback (local working files, archived in human-rejections.md)
+**/human-feedback.yaml
+
 # Generated
 _gen.py
