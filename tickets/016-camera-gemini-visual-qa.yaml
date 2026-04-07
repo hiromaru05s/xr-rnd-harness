@@ -1,0 +1,26 @@
+id: "016"
+title: "カメラ+Gemini Live 視覚質問応答"
+category: "integration"
+priority: "high"
+hypothesis: "CameraXで撮影した画像をGemini Liveセッションに送信し、音声で質問→視覚的な回答を得る統合パターンが確立できる"
+scope:
+  - "CameraXで画像キャプチャ（ProjectedDeviceContext経由）"
+  - "キャプチャ画像をGemini LiveセッションにInlineDataとして送信"
+  - "音声質問と画像を組み合わせたマルチモーダル会話"
+  - "カメラボタン押下で撮影トリガー（ProjectedActivityCompat入力イベント）"
+  - "撮影状態・会話状態のGlimmer UI表示"
+skills_needed:
+  - "glimmer-api"
+  - "projected-api"
+  - "glasses-hardware"
+  - "glasses-arch"
+success_criteria:
+  - "カメラボタン押下で画像キャプチャが実行される"
+  - "キャプチャ画像がGemini Liveセッションに送信可能"
+  - "Geminiが画像について音声で応答する"
+  - "CaptureState/ConversationState統合のsealed classステートマシン"
+  - "黒背景・FOV準拠・3アイテム以下のUI"
+verification_level: "static"
+estimated_complexity: "large"
+status: "passed"
+retry_count: 0

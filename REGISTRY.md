@@ -233,3 +233,19 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
   - Robust lifecycle pattern (from 001)
 - **Pattern References**:
   - patterns/architecture-patterns.md: HostDeviceContext cross-device pattern, Robust lifecycle (reused)
+
+### 016: Camera + Gemini Live Visual QA
+- **PASS Date**: 2026-04-06 (10/10)
+- **Feature**: CameraX image capture + Gemini Live multimodal visual Q&A integration. Camera button triggers capture, image sent to Gemini as InlineData, AI analyzes and responds via audio. Continuous voice conversation about captured images.
+- **API Coverage**:
+  - `CameraX` via `ProjectedContext.createProjectedDeviceContext()` for glasses camera
+  - `ImageCapture.OnImageCapturedCallback`, `ImageProxy` to Base64 conversion
+  - `Firebase.ai().liveModel()` with `ResponseModality.AUDIO`
+  - `LiveSession.send(content { inlineData() })` for multimodal image+text
+  - `LiveSession.startAudioConversation(transcriptHandler)` for voice conversation
+  - `ProjectedActivityCompat.projectedInputEvents` for camera button trigger
+  - `AppState` sealed class (6 states: Initializing/Ready/Capturing/Analyzing/Conversing/Error)
+  - Robust lifecycle pattern (singleTop + onNewIntent + onResume)
+- **Pattern References**:
+  - patterns/camera-patterns.md: CameraX + Gemini multimodal capture pattern
+  - patterns/architecture-patterns.md: Multi-system state machine pattern

@@ -468,3 +468,59 @@ fun exploreContexts(activity: ComponentActivity) {
 **Source**: experiments/architecture/015-host-device-context
 
 ---
+
+## Multi-System State Machine Pattern
+
+**When to use**: When coordinating multiple async systems (Camera + AI + Input Events) in a single Activity
+**Prerequisites**: Kotlin sealed class
+
+```kotlin
+// Define unified state machine covering all subsystems
+sealed class AppState {
+    data object Initializing : AppState()
+    data object Ready : AppState()
+    data object Capturing : AppState()
+    data class Analyzing(val description: String = "Analyzing...") : AppState()
+    data class Conversing(val lastTranscript: String = "") : AppState()
+    data class Error(val message: String) : AppState()
+}
+
+// In Activity: single mutableStateOf drives all UI
+private var appState by mutableStateOf<AppState>(AppState.Initializing)
+
+// Each subsystem reports completion -> check if all ready
+private fun checkAllReady() {
+    if (subsystem1Ready && subsystem2Ready && appState is AppState.Initializing) {
+        appState = AppState.Ready
+    }
+}
+
+// Transitions are explicit and safe
+private fun triggerAction() {
+    if (appState !is AppState.Ready) return  // Guard clause
+    appState = AppState.Capturing
+    // ... async operation ...
+}
+
+// UI uses exhaustive when() on sealed class
+when (appState) {
+    is AppState.Initializing -> { /* loading UI */ }
+    is AppState.Ready -> { /* action buttons */ }
+    is AppState.Capturing -> { /* progress */ }
+    is AppState.Analyzing -> { /* AI working */ }
+    is AppState.Conversing -> { /* transcript display */ }
+    is AppState.Error -> { /* retry button */ }
+}
+```
+
+**Gotchas**:
+- Single source of truth: one mutableStateOf for the entire app state
+- Guard clauses prevent invalid transitions (e.g., capture while already capturing)
+- Exhaustive when() on sealed class ensures all states are handled
+- Each subsystem init should call checkAllReady() on completion
+- Error state should be reachable from any state
+- retryFromError() should release and reinitialize all subsystems
+
+**Source**: experiments/integration/016-camera-gemini-visual-qa
+
+---
