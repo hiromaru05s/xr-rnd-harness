@@ -1,0 +1,22 @@
+id: "013"
+title: "Glimmerタイポグラフィ・カラーシステム活用"
+category: "ui"
+priority: "medium"
+hypothesis: "Glimmerの7種タイポグラフィスタイルと8色カラーシステム、カスタムColors.copy()を使って、透過ディスプレイで視認性の高い情報階層を表現できる"
+scope:
+  - "全7タイポグラフィスタイル（titleLarge〜caption）の表示比較"
+  - "全8色（primary〜outlineVariant）の視覚サンプル"
+  - "Colors.copy()によるカスタムカラーテーマ"
+  - "タッチパッドでスタイル/色の切り替え"
+  - "Typography.copy()によるカスタムフォントウェイト"
+skills_needed:
+  - "glimmer-api"
+success_criteria:
+  - "7種のタイポグラフィが正しく描画される"
+  - "8色が視覚的に区別できる"
+  - "Colors.copy()でカスタムテーマが適用できる"
+  - "タッチパッドでの切り替えが動作する"
+estimated_complexity: "small"
+status: "passed"
+retry_count: 0
+verification_level: "static"

@@ -327,3 +327,77 @@ Box(
 **出典**: experiments/ui/007-glimmer-depth-effects
 
 ---
+
+## Custom Theme via Colors.copy() + Typography.copy()
+
+**When to use**: When customizing Glimmer theme colors or typography for a specific screen
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+
+```kotlin
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.xr.glimmer.GlimmerTheme
+import androidx.xr.glimmer.Text
+
+// Create custom theme values
+val customColors = GlimmerTheme.colors.copy(
+    primary = Color(0xFFFF9800),    // Override just primary
+    positive = Color(0xFF00BCD4),   // Override just positive
+)
+val customTypography = GlimmerTheme.typography.copy(
+    titleLarge = GlimmerTheme.typography.titleLarge.copy(
+        fontWeight = FontWeight.Black
+    ),
+)
+
+// Apply via nested GlimmerTheme - only affects subtree
+GlimmerTheme(colors = customColors, typography = customTypography) {
+    Text("This uses custom theme", color = GlimmerTheme.colors.primary) // Orange
+}
+// Outside the nested theme, original colors still apply
+```
+
+**Gotchas**:
+- Nested GlimmerTheme only affects its subtree children
+- `Colors.copy()` preserves all unspecified colors (only overrides what you pass)
+- `Typography.copy()` preserves all unspecified styles
+- Individual TextStyle can be further customized with `.copy(fontWeight = ...)`
+- Must access theme values via `GlimmerTheme.colors`/`GlimmerTheme.typography` inside the theme scope
+
+**Source**: experiments/ui/013-glimmer-typography-colors
+
+---
+
+## Glimmer Typography Scale Reference
+
+**When to use**: When choosing the right typography style for transparent display readability
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+
+```kotlin
+import androidx.xr.glimmer.GlimmerTheme
+import androidx.xr.glimmer.Text
+
+// Title styles (Weight 750, bold) - for headings and emphasis
+Text("Large Heading", style = GlimmerTheme.typography.titleLarge)   // 30sp
+Text("Medium Heading", style = GlimmerTheme.typography.titleMedium) // 24sp
+Text("Small Heading", style = GlimmerTheme.typography.titleSmall)   // 20sp
+
+// Body styles (Weight 520, regular) - for content
+Text("Large Body", style = GlimmerTheme.typography.bodyLarge)       // 30sp
+Text("Medium Body", style = GlimmerTheme.typography.bodyMedium)     // 24sp
+Text("Small Body (default)", style = GlimmerTheme.typography.bodySmall) // 20sp
+
+// Caption (Weight 650, semi-bold) - for labels and metadata
+Text("Caption Text", style = GlimmerTheme.typography.caption)       // 18sp
+```
+
+**Gotchas**:
+- bodySmall is the default text style in GlimmerTheme
+- All styles use Google Sans Flex font family
+- Caption uses 650 weight (semi-bold), heavier than body (520) but lighter than title (750)
+- On transparent display, titleLarge/bodyLarge (30sp) have best distant readability
+- caption (18sp) should only be used for supplementary information
+
+**Source**: experiments/ui/013-glimmer-typography-colors
+
+---
