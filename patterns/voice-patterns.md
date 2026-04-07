@@ -251,3 +251,60 @@ session.startAudioConversation(functionCallHandler = ::handleFunctionCall)
 **Source**: experiments/voice/014-gemini-function-calling
 
 ---
+
+## Auto-Read Notification with TTS
+
+**When to use**: When automatically reading notifications aloud on AI glasses with touchpad control
+**Prerequisites**: Android TTS (built-in, no additional dependencies)
+
+```kotlin
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+
+enum class TtsStatus { Idle, Speaking, Completed, ErrorOccurred }
+
+// In Activity:
+private var tts: TextToSpeech? = null
+private var ttsStatus by mutableStateOf(TtsStatus.Idle)
+
+// Initialize with UtteranceProgressListener for state tracking
+tts = TextToSpeech(context) { status ->
+    if (status == TextToSpeech.SUCCESS) {
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(uid: String) { runOnUiThread { ttsStatus = TtsStatus.Speaking } }
+            override fun onDone(uid: String) { runOnUiThread { ttsStatus = TtsStatus.Completed } }
+            @Deprecated("Deprecated in Java")
+            override fun onError(uid: String) { runOnUiThread { ttsStatus = TtsStatus.ErrorOccurred } }
+        })
+    }
+}
+
+// Auto-read on notification arrival
+fun onNotificationReceived(item: NotificationItem) {
+    queueManager.addNotification(item)
+    speakNotification(item)
+}
+
+fun speakNotification(item: NotificationItem) {
+    val text = item.appName + ". " + item.title + ". " + item.text
+    tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "notif_" + item.id)
+}
+
+// Navigation also triggers re-read
+fun navigateForward() {
+    val next = queueManager.moveToNext()
+    if (next != null) speakNotification(next)
+}
+```
+
+**Gotchas**:
+- QUEUE_FLUSH interrupts previous notification read for immediate new one
+- UtteranceProgressListener callbacks run on non-main thread - use runOnUiThread
+- Format: "AppName. Title. Text" with period separators for natural TTS pacing
+- Use unique utterance IDs (notif_$id) for tracking specific notifications
+- On dismiss with empty queue: tts?.stop() and reset status to Idle
+- Clean up in onDestroy: tts?.stop(); tts?.shutdown()
+
+**Source**: experiments/integration/017-notification-voice-bridge
+
+---

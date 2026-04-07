@@ -221,3 +221,63 @@ Box(
 **Source**: experiments/integration/011-voice-touchpad-integration
 
 ---
+
+## Notification Queue + Touchpad Navigation
+
+**When to use**: When managing a queue of items (notifications, messages, tasks) with touchpad navigation on AI glasses
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+
+```kotlin
+import androidx.xr.glimmer.onIndirectPointerGesture
+import androidx.compose.ui.focus.focusTarget
+
+// 1. Queue Manager with max size (FOV constraint: 3 items)
+class NotificationQueueManager(private val maxSize: Int = 3) {
+    private val queue = mutableListOf<NotificationItem>()
+    private var currentIndex = 0
+
+    fun addNotification(item: NotificationItem) {
+        queue.add(0, item)  // Newest first
+        if (queue.size > maxSize) { queue.removeAt(queue.lastIndex) }
+        currentIndex = 0
+    }
+
+    fun getCurrentNotification(): NotificationItem? = queue.getOrNull(currentIndex)
+    fun moveToNext(): NotificationItem? {
+        if (currentIndex < queue.size - 1) currentIndex++
+        return getCurrentNotification()
+    }
+    fun moveToPrevious(): NotificationItem? {
+        if (currentIndex > 0) currentIndex--
+        return getCurrentNotification()
+    }
+    fun dismissCurrent(): NotificationItem? {
+        if (queue.isEmpty()) return null
+        queue.removeAt(currentIndex)
+        if (currentIndex >= queue.size && currentIndex > 0) currentIndex--
+        return getCurrentNotification()
+    }
+}
+
+// 2. Touchpad gesture integration
+Box(
+    modifier = Modifier
+        .onIndirectPointerGesture(
+            onSwipeForward = { navigateForward() },   // Next item
+            onSwipeBackward = { navigateBackward() },  // Previous item / re-read
+            onClick = { dismissCurrent() },             // Dismiss
+        )
+        .focusTarget()  // Required for gesture detection
+) { /* Card showing current item with index/total counter */ }
+```
+
+**Gotchas**:
+- Queue maxSize should be 3 (FOV constraint for AI glasses)
+- Newest items at index 0 (users expect latest notification first)
+- dismissCurrent() must adjust currentIndex when removing from middle
+- focusTarget() is mandatory after onIndirectPointerGesture
+- Show position indicator (e.g., "2/3") on Card subtitle for orientation
+
+**Source**: experiments/integration/017-notification-voice-bridge
+
+---

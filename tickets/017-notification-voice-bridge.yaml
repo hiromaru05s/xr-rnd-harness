@@ -1,0 +1,26 @@
+id: "017"
+title: "通知→音声読み上げブリッジ"
+category: "integration"
+priority: "high"
+hypothesis: "受信通知をTTSで自動読み上げし、タッチパッドで既読/スキップ操作する統合パターンが確立できる"
+scope:
+  - "NotificationListenerServiceで受信通知を検出"
+  - "通知タイトル・テキストをTTSで自動読み上げ"
+  - "タッチパッドスワイプで次の通知/再読み上げ/既読操作"
+  - "通知キューの管理（最新3件をGlimmer UIで表示）"
+  - "PresentationMode連動（Visual+Voice / Voice Only）"
+skills_needed:
+  - "glimmer-api"
+  - "projected-api"
+  - "glasses-hardware"
+  - "glasses-arch"
+success_criteria:
+  - "通知受信時にTTS読み上げが自動トリガーされる"
+  - "タッチパッドスワイプで通知間を移動できる"
+  - "通知キューが最新3件でFOV準拠表示される"
+  - "PresentationMode切替でVoice Onlyモードが動作する"
+  - "黒背景・FOV準拠・LazyColumn不使用"
+verification_level: "static"
+estimated_complexity: "medium"
+status: "passed"
+retry_count: 0

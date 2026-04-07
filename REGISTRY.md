@@ -249,3 +249,19 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/camera-patterns.md: CameraX + Gemini multimodal capture pattern
   - patterns/architecture-patterns.md: Multi-system state machine pattern
+
+### 017: Notification Voice Bridge
+- **PASS Date**: 2026-04-06 (9/10)
+- **Feature**: Notification-to-voice bridge with rolling 3-item queue, auto TTS read-aloud on arrival, touchpad swipe navigation (forward/backward/dismiss). PresentationMode-aware dual mode support.
+- **API Coverage**:
+  - `TextToSpeech` (QUEUE_FLUSH) + `UtteranceProgressListener` for TTS state
+  - `onIndirectPointerGesture` (onSwipeForward/onSwipeBackward/onClick) + `focusTarget()`
+  - `NotificationQueueManager` rolling queue (max 3 items, newest first)
+  - `BridgeState` sealed class (5 states: Initializing/Waiting/Showing/Reading/Error)
+  - `TtsStatus` enum (Idle/Speaking/Completed/ErrorOccurred)
+  - Card with subtitle for position indicator, negative color Dismiss button
+  - Robust lifecycle pattern (singleTop + onNewIntent + onResume)
+- **Pattern References**:
+  - patterns/input-patterns.md: Notification queue + touchpad navigation
+  - patterns/voice-patterns.md: Auto-read notification with TTS
+  - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
