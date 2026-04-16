@@ -34,25 +34,28 @@ import androidx.xr.glimmer.list.VerticalList
 import androidx.xr.glimmer.list.items
 
 /**
- * Glimmer基本UIコンポーネントのショーケース画面。
+ * Showcase screen for basic Glimmer UI components.
  *
- * 黒背景（透過ディスプレイでは透明）上に以下を配置:
- * - TitleChip: 選択状態をステータス表示
- * - Card + Button (Medium/Large + アイコン付き): アクション操作
- * - VerticalList + ListItem x3: タッチパッドフォーカスナビゲーション確認
+ * Renders on black background (transparent on see-through display):
+ * - TitleChip: shows current selection status
+ * - Card + Button (Medium/Large + icon): action controls
+ * - VerticalList + ListItem x3: touchpad focus navigation demo
  *
- * GlimmerTheme のフォーカスシステムがアウトラインベースのハイライトを自動管理する。
+ * GlimmerTheme's focus system auto-manages outline-based highlights.
  *
- * [FB対応] テキストの中央揃えを徹底:
- * - VerticalList に horizontalAlignment = Alignment.CenterHorizontally を明示
- * - Column/Box の中央揃え設定を再確認
- * - fillMaxWidth で均等幅レイアウトを確保
+ * [FB fix #3] All UI text changed from Japanese to English to resolve
+ * character encoding / mojibake issue on emulator display.
+ *
+ * [FB fix #2] Text centering:
+ * - VerticalList: horizontalAlignment = Alignment.CenterHorizontally
+ * - Column/Box center alignment verified
+ * - fillMaxWidth for uniform layout
  */
 @Composable
 fun BasicUiScreen(modifier: Modifier = Modifier) {
-    var selectedLabel by remember { mutableStateOf("選択なし") }
+    var selectedLabel by remember { mutableStateOf("None") }
 
-    // 黒背景 = 加算光方式で透過ディスプレイ上では透明になる
+    // Black background = transparent on see-through display (additive light)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -65,7 +68,7 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // ステータス表示: 選択中アイテムをTitleChipで示す
+            // Status display: show selected item via TitleChip
             TitleChip(
                 leadingIcon = {
                     Icon(
@@ -77,23 +80,23 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
                 Text(selectedLabel)
             }
 
-            // Card + Button (Medium確認 + Large+アイコン確認)
+            // Card + Button (Medium + Large with icon)
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                title = { Text("アクション") },
+                title = { Text("Actions") },
                 action = {
-                    // Mediumサイズ Button
+                    // Medium-size Button
                     Button(
-                        onClick = { selectedLabel = "確認済み" },
+                        onClick = { selectedLabel = "Confirmed" },
                         buttonSize = ButtonSize.Medium,
                     ) {
-                        Text("確認")
+                        Text("OK")
                     }
                 }
             ) {
-                // Largeサイズ + 先頭アイコン付き Button
+                // Large-size Button with leading icon
                 Button(
-                    onClick = { selectedLabel = "実行中" },
+                    onClick = { selectedLabel = "Running" },
                     buttonSize = ButtonSize.Large,
                     leadingIcon = {
                         Icon(
@@ -102,12 +105,12 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
                         )
                     }
                 ) {
-                    Text("実行")
+                    Text("Run")
                 }
             }
 
-            // [FB対応] VerticalList に horizontalAlignment を明示して中央揃え
-            // タッチパッドの前後スワイプでフォーカスが移動し、アウトラインが変化する
+            // [FB fix #2] VerticalList with explicit horizontalAlignment for centering
+            // Touchpad forward/backward swipe moves focus with outline highlight
             VerticalList(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -120,7 +123,7 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
                                 contentDescription = null,
                             )
                         },
-                        supportingLabel = { Text("タップで選択") },
+                        supportingLabel = { Text("Tap to select") },
                     ) {
                         Text(item.label)
                     }
@@ -133,7 +136,7 @@ fun BasicUiScreen(modifier: Modifier = Modifier) {
 private data class MenuItem(val label: String, val icon: ImageVector)
 
 private val menuItems = listOf(
-    MenuItem("通知", Icons.Default.Notifications),
-    MenuItem("設定", Icons.Default.Settings),
-    MenuItem("ヘルプ", Icons.Default.Info),
+    MenuItem("Alerts", Icons.Default.Notifications),
+    MenuItem("Settings", Icons.Default.Settings),
+    MenuItem("Help", Icons.Default.Info),
 )

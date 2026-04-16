@@ -30,15 +30,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * スマートフォン側ランチャーアクティビティ。
+ * Phone-side launcher activity.
  *
- * グラスデバイスの接続状態を監視し、接続時に
- * ProjectedContext.createProjectedActivityOptions() 経由で
- * GlassesMainActivity をグラスディスプレイ上に起動する。
+ * Monitors glasses device connection state and launches
+ * GlassesMainActivity on the glasses display via
+ * ProjectedContext.createProjectedActivityOptions().
  *
- * [FB対応] FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP で起動することで、
- * 既存の GlassesMainActivity インスタンスを再利用し、onNewIntent で
- * DisplayController を再初期化する。
+ * [FB fix #2] Launches with FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP
+ * to reuse existing GlassesMainActivity instance and reinitialize
+ * DisplayController via onNewIntent.
+ *
+ * [FB fix #3] All UI text changed to English to fix mojibake issue.
  */
 @OptIn(ExperimentalProjectedApi::class)
 class MainActivity : ComponentActivity() {
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // グラス接続を監視し、自動起動（API 36+のみ）
+        // Monitor glasses connection for auto-launch (API 36+ only)
         if (Build.VERSION.SDK_INT >= 36) {
             observeGlassesConnection()
         }
@@ -75,9 +77,9 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * [FB対応] GlassesMainActivity を ProjectedContext 経由で起動。
-     * FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP を設定し、
-     * 既存インスタンスがある場合は onNewIntent で再初期化させる。
+     * [FB fix #2] Launch GlassesMainActivity via ProjectedContext.
+     * FLAG_ACTIVITY_CLEAR_TOP + FLAG_ACTIVITY_SINGLE_TOP ensures
+     * existing instance is reused via onNewIntent for reinit.
      */
     private fun launchGlassesActivity() {
         try {
@@ -119,11 +121,11 @@ private fun PhoneLauncherScreen(
                         )
                     }
                 ) {
-                    Text("グラスに表示")
+                    Text("Show on Glasses")
                 }
             }
         ) {
-            Text("AIグラスを接続すると自動的にUIが表示されます。手動で起動する場合はボタンをタップしてください。")
+            Text("UI will appear on glasses automatically when connected. Tap the button to launch manually.")
         }
     }
 }

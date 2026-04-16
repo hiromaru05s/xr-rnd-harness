@@ -22,15 +22,14 @@ import com.example.glimmerbasicui.ui.BasicUiScreen
 import kotlinx.coroutines.launch
 
 /**
- * AIグラス用アクティビティ。
+ * Glasses-side activity for AI glasses display.
  *
- * ProjectedContext 経由で起動され、グラスの透過ディスプレイ上に描画される。
- * ProjectedDisplayController でスクリーンオン維持、
- * ProjectedDeviceController でディスプレイ能力を確認する。
+ * Launched via ProjectedContext and renders on the see-through display.
+ * Uses ProjectedDisplayController for screen-on persistence and
+ * ProjectedDeviceController for display capability checks.
  *
- * [FB対応] singleTopモードで起動し、onNewIntent/onResumeでも
- * DisplayControllerの再初期化を行うことで、別画面から戻った際の
- * UI再表示問題を解決。
+ * [FB fix #2] singleTop launch mode + onNewIntent/onResume reinit
+ * to resolve UI re-display issue after navigating away.
  */
 @OptIn(ExperimentalProjectedApi::class)
 class GlassesMainActivity : ComponentActivity() {
@@ -43,7 +42,7 @@ class GlassesMainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate called")
 
-        // ライフサイクルオブザーバーでDisplayControllerをクリーンアップ
+        // Lifecycle observer for DisplayController cleanup
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 Log.d(TAG, "onDestroy: closing DisplayController")
@@ -51,12 +50,12 @@ class GlassesMainActivity : ComponentActivity() {
             }
         })
 
-        // グラスハードウェア初期化
+        // Initialize glasses hardware
         initializeGlassesFeatures()
 
         setContent {
             GlimmerTheme {
-                // isVisualUiSupportedとareVisualsOnの両方がtrueの場合のみUIを描画
+                // Only render UI when both visual capability and visuals-on are true
                 if (isVisualUiSupported && areVisualsOn) {
                     BasicUiScreen()
                 }
@@ -65,8 +64,8 @@ class GlassesMainActivity : ComponentActivity() {
     }
 
     /**
-     * [FB対応] singleTopモードで既存インスタンスが再利用される場合、
-     * onNewIntentが呼ばれる。ここでDisplayControllerを再初期化する。
+     * [FB fix #2] When singleTop reuses existing instance,
+     * onNewIntent is called. Reinitialize DisplayController here.
      */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -76,8 +75,8 @@ class GlassesMainActivity : ComponentActivity() {
     }
 
     /**
-     * [FB対応] onResumeでDisplayControllerがnullなら再初期化。
-     * バックグラウンドから復帰した際にUIが表示されなくなる問題を防ぐ。
+     * [FB fix #2] Reinitialize DisplayController if null on resume.
+     * Prevents UI from disappearing after returning from background.
      */
     override fun onResume() {
         super.onResume()
@@ -88,9 +87,8 @@ class GlassesMainActivity : ComponentActivity() {
     }
 
     /**
-     * onStopではDisplayControllerを解放しない。
-     * 再びonResumeで復帰する可能性があるため。
-     * ただし、isFinishing==trueの場合は即座に解放する。
+     * Do not release DisplayController in onStop — activity may resume.
+     * Only release immediately if isFinishing is true.
      */
     override fun onStop() {
         super.onStop()
@@ -103,19 +101,19 @@ class GlassesMainActivity : ComponentActivity() {
     private fun initializeGlassesFeatures() {
         lifecycleScope.launch {
             try {
-                // デバイス能力チェック（ディスプレイ有無）
+                // Check device capability (display available)
                 val deviceController = ProjectedDeviceController.create(this@GlassesMainActivity)
                 isVisualUiSupported = deviceController.capabilities.contains(CAPABILITY_VISUAL_UI)
                 Log.d(TAG, "Visual UI supported: $isVisualUiSupported")
 
-                // ディスプレイコントローラー初期化
+                // Initialize display controller
                 val controller = ProjectedDisplayController.create(this@GlassesMainActivity)
                 displayController = controller
 
-                // スクリーンオン維持（グラスディスプレイのスヌーズ防止）
+                // Keep screen on (prevent glasses display snooze)
                 controller.addLayoutParamsFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                // プレゼンテーションモード監視
+                // Monitor presentation mode
                 controller.addPresentationModeChangedListener { flags ->
                     areVisualsOn = flags.hasPresentationMode(PresentationMode.VISUALS_ON)
                     Log.d(TAG, "Visuals on: $areVisualsOn")
@@ -124,14 +122,14 @@ class GlassesMainActivity : ComponentActivity() {
                 Log.d(TAG, "Glasses features initialized successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to initialize glasses features", e)
-                // 初期化失敗時でもクラッシュしない。UIは表示されないがアプリは生存する。
+                // Do not crash on init failure. UI won't show but app survives.
             }
         }
     }
 
     /**
-     * DisplayControllerを安全に解放する。
-     * 複数回呼ばれても問題ないようにnullチェック付き。
+     * Safely release DisplayController.
+     * Null-check ensures safe repeated calls.
      */
     private fun releaseDisplayController() {
         displayController?.let { controller ->

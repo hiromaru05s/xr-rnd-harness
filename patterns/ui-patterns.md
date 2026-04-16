@@ -1,17 +1,17 @@
-# Glimmer UIパターン集
+# Glimmer UI Patterns
 
-> このファイルはAIがコンテキストとして読み込み、vibe codingの参照にする。
-> コードスニペットはコピペで動くレベルの完全性を維持すること。
+> This file is loaded as context by AI agents for vibe coding reference.
+> Code snippets maintain copy-paste completeness.
 
 ---
 
-## Glimmer基本コンポーネント配置
+## Glimmer Basic Component Layout
 
-**いつ使う**: AIグラス向けに基本的なGlimmer UIコンポーネントを配置する画面を作るとき
-**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`, `implementation(platform("androidx.compose:compose-bom:2025.01.00"))`, `implementation("androidx.compose.material:material-icons-core")`
+**When to use**: Building a basic Glimmer UI screen for AI glasses
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`, `implementation(platform("androidx.compose:compose-bom:2025.01.00"))`, `implementation("androidx.compose.material:material-icons-core")`
 
 ```kotlin
-// === Activity: GlimmerThemeでラップする最小構成 ===
+// === Activity: Minimal GlimmerTheme wrapper ===
 package com.example.myapp
 
 import android.os.Bundle
@@ -23,7 +23,7 @@ class GlassesMainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // GlimmerThemeでラップするだけでフォーカスシステムが有効化される
+            // GlimmerTheme wrapper enables the focus system automatically
             GlimmerTheme {
                 MyScreen()
             }
@@ -33,7 +33,7 @@ class GlassesMainActivity : ComponentActivity() {
 ```
 
 ```kotlin
-// === Screen: 黒背景 + 基本コンポーネント配置 ===
+// === Screen: Black background + basic components ===
 package com.example.myapp.ui
 
 import androidx.compose.foundation.background
@@ -71,9 +71,9 @@ import androidx.xr.glimmer.list.items
 
 @Composable
 fun MyScreen(modifier: Modifier = Modifier) {
-    var selectedLabel by remember { mutableStateOf("選択なし") }
+    var selectedLabel by remember { mutableStateOf("None") }
 
-    // 黒背景 = 加算光方式で透明。UIコンテンツのみ視認される
+    // Black background = transparent on see-through display (additive light)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -86,7 +86,7 @@ fun MyScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // TitleChip: ステータスバー的な表示
+            // TitleChip: status bar display
             TitleChip(
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Star, contentDescription = null)
@@ -95,35 +95,35 @@ fun MyScreen(modifier: Modifier = Modifier) {
                 Text(selectedLabel)
             }
 
-            // Card: title/action/contentの3スロット構成
+            // Card: title/action/content 3-slot structure
             Card(
-                title = { Text("アクション") },
+                title = { Text("Actions") },
                 action = {
-                    // Mediumサイズ Button
+                    // Medium-size Button
                     Button(
-                        onClick = { selectedLabel = "確認済み" },
+                        onClick = { selectedLabel = "Confirmed" },
                         buttonSize = ButtonSize.Medium,
-                    ) { Text("確認") }
+                    ) { Text("OK") }
                 }
             ) {
-                // Largeサイズ + アイコン付き Button
+                // Large-size Button with icon
                 Button(
-                    onClick = { selectedLabel = "実行中" },
+                    onClick = { selectedLabel = "Running" },
                     buttonSize = ButtonSize.Large,
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                     }
-                ) { Text("実行") }
+                ) { Text("Run") }
             }
 
-            // VerticalList: 3アイテム以下（グラスのFOV制約）
-            // DPAD_DOWN/UPでアウトラインフォーカスが自動移動（focusRequester不要）
+            // VerticalList: 3 items max (glasses FOV constraint)
+            // DPAD_DOWN/UP auto-moves outline focus (no focusRequester needed)
             VerticalList {
                 data class MenuItem(val label: String, val icon: ImageVector)
                 val menuItems = listOf(
-                    MenuItem("通知", Icons.Default.Notifications),
-                    MenuItem("設定", Icons.Default.Settings),
-                    MenuItem("ヘルプ", Icons.Default.Info),
+                    MenuItem("Alerts", Icons.Default.Notifications),
+                    MenuItem("Settings", Icons.Default.Settings),
+                    MenuItem("Help", Icons.Default.Info),
                 )
                 items(menuItems) { item ->
                     ListItem(
@@ -131,7 +131,7 @@ fun MyScreen(modifier: Modifier = Modifier) {
                         leadingIcon = {
                             Icon(imageVector = item.icon, contentDescription = null)
                         },
-                        supportingLabel = { Text("タップで選択") },
+                        supportingLabel = { Text("Tap to select") },
                     ) {
                         Text(item.label)
                     }
@@ -143,8 +143,8 @@ fun MyScreen(modifier: Modifier = Modifier) {
 ```
 
 ```xml
-<!-- === AndroidManifest.xml: 2アクティビティ構成（公式推奨） === -->
-<!-- 注意: GlassesMainActivityにLAUNCHERカテゴリを付けるのはNG -->
+<!-- === AndroidManifest.xml: 2-activity architecture (officially recommended) === -->
+<!-- Note: DO NOT add LAUNCHER category to GlassesMainActivity -->
 <application>
     <activity
         android:name=".MainActivity"
@@ -165,22 +165,23 @@ fun MyScreen(modifier: Modifier = Modifier) {
     </activity>
 </application>
 
-**ハマりポイント**:
-- `LazyColumn` は使わない。必ず `VerticalList` + `items()` を使う
-- 背景は必ず `Color.Black`（加算光方式で透明になる）
-- `android:requiredDisplayCategory="xr_projected"` がないとグラスに投影されない
-- `GlimmerTheme` でラップしないとフォーカスシステムが動かない
-- リストは3アイテム以下（FOV 50-70度の制約）
-- Glimmerの `Text`, `Button`, `Icon` 等はすべて `androidx.xr.glimmer` パッケージからimport（Compose Materialのものではない）
+**Gotchas**:
+- Do NOT use `LazyColumn`. Always use `VerticalList` + `items()`
+- Background must be `Color.Black` (transparent on additive-light see-through display)
+- `android:requiredDisplayCategory="xr_projected"` is required for glasses projection
+- `GlimmerTheme` wrapper is mandatory -- focus system will not work without it
+- Lists must have 3 items or fewer (FOV 50-70 degree constraint)
+- Glimmer `Text`, `Button`, `Icon` etc. are from `androidx.xr.glimmer` package (NOT Compose Material)
+- **Use English text for UI labels** -- Japanese text causes mojibake on XR emulator
 
-**出典**: experiments/ui/001-glimmer-basic-ui
+**Source**: experiments/ui/001-glimmer-basic-ui
 
 ---
 
-## TitleChipによるステータス表示
+## TitleChip Status Display
 
-**いつ使う**: 画面上部に現在の状態やモードを1行で表示したいとき
-**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+**When to use**: Display current state or mode in a single line at the top
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
 
 ```kotlin
 import androidx.compose.material.icons.Icons
@@ -189,28 +190,28 @@ import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.TitleChip
 
-// TitleChip: leadingIconスロット + contentラムダ
+// TitleChip: leadingIcon slot + content lambda
 TitleChip(
     leadingIcon = {
         Icon(imageVector = Icons.Default.Star, contentDescription = null)
     }
 ) {
-    Text("ステータステキスト")
+    Text("Status Text")
 }
 ```
 
-**ハマりポイント**:
-- TitleChipはタップ不可。表示専用コンポーネント
-- アイコンは省略可能（leadingIcon引数を渡さなければよい）
+**Gotchas**:
+- TitleChip is display-only, not tappable
+- leadingIcon is optional (omit the parameter to skip)
 
-**出典**: experiments/ui/001-glimmer-basic-ui
+**Source**: experiments/ui/001-glimmer-basic-ui
 
 ---
 
-## Card + Button の組み合わせ
+## Card + Button Combination
 
-**いつ使う**: アクションカードを作りたいとき（タイトル付きのボタン群）
-**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+**When to use**: Creating action cards with titled button groups
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
 
 ```kotlin
 import androidx.compose.material.icons.Icons
@@ -221,36 +222,36 @@ import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 
-// Card: title(上部ラベル), action(右上アクション), content(本体)
+// Card: title (top label), action (top-right action), content (body)
 Card(
-    title = { Text("カードタイトル") },
+    title = { Text("Card Title") },
     action = {
         Button(
-            onClick = { /* アクション */ },
+            onClick = { /* Actions */ },
             buttonSize = ButtonSize.Medium,
-        ) { Text("ボタンM") }
+        ) { Text("Medium") }
     }
 ) {
     Button(
-        onClick = { /* アクション */ },
+        onClick = { /* Actions */ },
         buttonSize = ButtonSize.Large,
         leadingIcon = {
             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
         }
-    ) { Text("ボタンL") }
+    ) { Text("Large") }
 }
 ```
 
-**ハマりポイント**:
-- `ButtonSize.Medium` と `ButtonSize.Large` のみ（Smallはグラスでは視認性が悪い）
-- `leadingIcon` はLargeサイズとの組み合わせが見やすい
+**Gotchas**:
+- Only `ButtonSize.Medium` and `ButtonSize.Large` (Small has poor visibility on glasses)
+- `leadingIcon` pairs best with Large size for readability
 
-**出典**: experiments/ui/001-glimmer-basic-ui
+**Source**: experiments/ui/001-glimmer-basic-ui
 
-## VerticalList 中央揃えパターン
+## VerticalList Center-Alignment Pattern
 
-**いつ使う**: VerticalListのアイテムを画面中央に揃えたいとき（デフォルトはAlignment.Start=左寄せ）
-**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+**When to use**: Centering VerticalList items on screen (default is Alignment.Start = left-aligned)
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
 
 ```kotlin
 import androidx.compose.ui.Alignment
@@ -259,13 +260,13 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.list.VerticalList
 import androidx.xr.glimmer.list.items
 
-// horizontalAlignment を明示しないとデフォルトの Alignment.Start（左寄せ）になる
+// Without explicit horizontalAlignment, default is Alignment.Start (left-aligned)
 VerticalList(
     horizontalAlignment = Alignment.CenterHorizontally,
 ) {
     items(menuItems) { item ->
         ListItem(
-            onClick = { /* アクション */ },
+            onClick = { /* Actions */ },
         ) {
             Text(item.label)
         }
@@ -273,19 +274,19 @@ VerticalList(
 }
 ```
 
-**ハマりポイント**:
-- VerticalListのデフォルト `horizontalAlignment` は `Alignment.Start`。Column内でCenterHorizontallyを設定していても、VerticalListは独自のalignmentを使う
-- 親のColumn/Boxが中央揃えでも、VerticalList内のアイテムは左寄せになるので注意
-- 透過ディスプレイでは中央揃えが特に重要（視線の焦点が中央にあるため）
+**Gotchas**:
+- VerticalList default `horizontalAlignment` is `Alignment.Start`. Even if parent Column uses CenterHorizontally, VerticalList uses its own alignment
+- Items inside VerticalList will be left-aligned even if parent Column/Box is center-aligned
+- Center alignment is especially important on see-through displays (gaze focal point is center)
 
-**出典**: experiments/ui/001-glimmer-basic-ui (人間フィードバック対応で発見)
+**Source**: experiments/ui/001-glimmer-basic-ui (discovered via human feedback fix #2)
 
 ---
 
-## Surface/SurfaceDefaultsカスタマイズ
+## Surface/SurfaceDefaults Customization
 
-**いつ使う**: Card/ListItem/BoxのボーダーやSurface設定をカスタマイズしたいとき
-**前提**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
+**When to use**: Customizing Card/ListItem/Box borders and Surface settings
+**Prerequisites**: `implementation("androidx.xr.glimmer:glimmer:1.0.0-alpha08")`
 
 ```kotlin
 import androidx.compose.foundation.BorderStroke
@@ -295,7 +296,7 @@ import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.SurfaceDefaults
 import androidx.xr.glimmer.surface
 
-// 1. Cardにカスタムボーダーとカラー
+// 1. Card with custom border and color
 Card(
     title = { Text("Custom Card") },
     color = GlimmerTheme.colors.surface,
@@ -305,7 +306,7 @@ Card(
     ),
 ) { /* content */ }
 
-// 2. Modifier.surface()でフォーカス対応Boxを作成
+// 2. Modifier.surface() for focusable Box
 Box(
     modifier = Modifier
         .surface(
@@ -314,17 +315,17 @@ Box(
             color = GlimmerTheme.colors.surface,
             border = BorderStroke(2.dp, GlimmerTheme.colors.positive),
         )
-        .padding(16.dp), // .surface()の後に.padding()
+        .padding(16.dp), // .surface() THEN .padding()
 ) { /* content */ }
 ```
 
-**ハマりポイント**:
-- `.surface().padding()`の順序が重要。逆にするとボーダーがpaddingの内側に描画される
-- SurfaceDefaults.border()はデフォルト2dp、フォーカス時5dpに拡大アニメーション
-- shapes.small=24dp角丸、shapes.medium=36dp角丸、shapes.large=CircleShape
-- focusable=trueでフォーカスアウトラインが有効化される
+**Gotchas**:
+- `.surface().padding()` order matters. Reversed = border draws inside padding
+- SurfaceDefaults.border() defaults to 2dp, expands to 5dp on focus with animation
+- shapes.small=24dp rounded, shapes.medium=36dp rounded, shapes.large=CircleShape
+- focusable=true enables focus outline
 
-**出典**: experiments/ui/007-glimmer-depth-effects
+**Source**: experiments/ui/007-glimmer-depth-effects
 
 ---
 

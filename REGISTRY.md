@@ -15,19 +15,6 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 
 ## 完了済み機能
 
-### 001: Glimmer基本UIコンポーネント動作確認
-- **PASS日**: 2026-04-06 (10/10) [FB resolved]
-- **機能**: GlimmerThemeの基本コンポーネント（Button, Card, ListItem, VerticalList, TitleChip）の描画確認。スマホ→グラスの2アクティビティ起動パターン確立。DisplayControllerの堅牢なライフサイクル管理パターン確立。
-- **APIカバレッジ**:
-  - `GlimmerTheme`, `Button` (Medium/Large), `Card` (action付き), `ListItem` (onClick付き), `VerticalList` + `items()`, `TitleChip`, `Icon`, `Text`
-  - `ProjectedContext.createProjectedActivityOptions()`, `ProjectedContext.isProjectedDeviceConnected()`
-  - `ProjectedDeviceController` (CAPABILITY_VISUAL_UI)
-  - `ProjectedDisplayController` (FLAG_KEEP_SCREEN_ON, PresentationMode.VISUALS_ON)
-  - `@OptIn(ExperimentalProjectedApi::class)`
-- **パターン参照**:
-  - patterns/ui-patterns.md: Glimmer基本コンポーネント配置, TitleChipステータス表示, Card+Button組み合わせ
-  - patterns/architecture-patterns.md: スマホ→グラス2アクティビティ起動パターン, GlassesMainActivity堅牢ライフサイクルパターン
-
 ### 002: Touchpad Gesture Navigation
 - **PASS Date**: 2026-04-06 (10/10)
 - **Feature**: Touchpad swipe-based VerticalStack card flipping and VerticalList
@@ -282,3 +269,22 @@ Orchestratorが実験PASS時に自動更新する。Plannerはチケット起票
 - **Pattern References**:
   - patterns/ar-patterns.md: Geospatial + Heading POI display pattern
   - patterns/architecture-patterns.md: Robust lifecycle pattern (reused)
+
+### 001: Glimmer Basic UI Components
+- **PASS Date**: 2026-04-15 (10/10) [FB resolved]
+- **Feature**: GlimmerTheme basic component showcase with TitleChip, Card, Button (Medium/Large with icon), VerticalList + ListItem (3 items). Touchpad focus navigation with outline-based highlights. Robust 2-activity architecture with singleTop lifecycle management.
+- **API Coverage**:
+  - `GlimmerTheme` (focus system auto-management)
+  - `TitleChip` (leadingIcon + content)
+  - `Card` (title, action, content 3-slot), `Button` (Medium/Large, leadingIcon)
+  - `VerticalList` + `items()` (horizontalAlignment = CenterHorizontally)
+  - `ListItem` (onClick, leadingIcon, supportingLabel)
+  - `Icon`, `Text` (from `androidx.xr.glimmer`)
+  - `ProjectedContext.createProjectedActivityOptions()`, `isProjectedDeviceConnected()`
+  - `ProjectedDisplayController` (FLAG_KEEP_SCREEN_ON, PresentationMode)
+  - `ProjectedDeviceController` (CAPABILITY_VISUAL_UI)
+  - Robust lifecycle pattern: singleTop + onNewIntent + onResume + onStop/isFinishing
+- **Pattern References**:
+  - patterns/ui-patterns.md: Glimmer basic component layout, TitleChip, Card+Button, VerticalList center-alignment
+  - patterns/architecture-patterns.md: Robust lifecycle pattern
+- **Human Feedback History**: 3 rounds resolved (Manifest bug, UI re-display, mojibake -> English text)
